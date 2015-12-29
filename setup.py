@@ -9,7 +9,7 @@
 from setuptools import setup, find_packages
 from os.path import join, dirname
 from os import chdir
-import version
+import flaskcbv.version
 import sys
 
 
@@ -31,7 +31,7 @@ setup(
 	#download_url = 'http://procool.ru/download/',
 
 	name = "flaskcbv",
-	version = version.__version__,
+	version = flaskcbv.version.__version__,
 	packages = find_packages(),
 	description=open(join(dirname(__file__), 'README')).readline(),
 	long_description=open(join(dirname(__file__), 'README')).read(),
