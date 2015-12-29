@@ -1,0 +1,11 @@
+You can install this program following next instuctions:
+
+Run setup.py:
+  $ sudo python setup.py install
+or
+  $ sudo python setup.py develop
+
+It will make modules on its default path in system, and build binary script:
+  $ whereis flaskcbv
+  sshconfig_by_xml: /usr/local/bin/flaskcbv
+
