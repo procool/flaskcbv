@@ -46,8 +46,9 @@ setup(
     
 	install_requires=[
 		'setuptools', 
-		'Flask-WTF', 
-		'Flask-SQLAlchemy', 
+		'Flask', 
+		#'Flask-WTF', 
+		#'Flask-SQLAlchemy', 
 	],
 
         include_package_data=True,
