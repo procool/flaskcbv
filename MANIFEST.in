@@ -1,0 +1,2 @@
+#2include README.rst
+recursive-include flaskcbv/protos *

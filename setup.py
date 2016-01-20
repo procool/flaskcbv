@@ -8,7 +8,7 @@
 
 from setuptools import setup, find_packages
 from os.path import join, dirname
-from os import chdir
+from os import chdir, walk
 import flaskcbv.version
 import sys
 
@@ -22,6 +22,9 @@ class BinaryDistribution(Distribution):
 
 if len(sys.argv) and not dirname(sys.argv[0]) == '':
 	chdir( dirname(sys.argv[0]) )
+
+
+
 
 setup(
 	author = 'procool',
