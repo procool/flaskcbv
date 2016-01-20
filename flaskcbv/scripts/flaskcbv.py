@@ -1,11 +1,12 @@
 import logging
+import sys
 from common import CommonMixin
 from cliargs import CliArgs
-from commands.startproject import cmdStartProject
+from commands.initproject import cmdInitProject
 from commands.startapp import cmdStartApp
 
 ## Main wrapper class of this program:
-class FlaskCBV(cmdStartProject, cmdStartApp, CommonMixin, CliArgs):
+class FlaskCBV(cmdInitProject, cmdStartApp, CommonMixin, CliArgs):
 
     ## Method called when all command line arguments are readed:
     def run(self):
