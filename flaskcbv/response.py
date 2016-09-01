@@ -47,7 +47,7 @@ class ResponseRedirect(Response):
         self.url = url
         self.code = code
 
-    def render(self):
+    def render(self, *args, **kwargs):
         return redirect(self.url, self.code)
 
 
