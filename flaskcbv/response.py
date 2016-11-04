@@ -46,6 +46,7 @@ class ResponseRedirect(Response):
     def __init__(self, url, code=302, **kwargs):
         self.url = url
         self.code = code
+        super(ResponseRedirect, self).__init__(**kwargs)
 
     def render(self, *args, **kwargs):
         return redirect(self.url, self.code)
