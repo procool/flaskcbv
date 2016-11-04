@@ -49,6 +49,10 @@ class ResponseRedirect(Response):
         super(ResponseRedirect, self).__init__(**kwargs)
 
     def render(self, *args, **kwargs):
-        return redirect(self.url, self.code)
+        r = redirect(self.url, code=self.code)
+        headers = self.get_headers()
+        for header in headers:
+            r.headers[header] = headers[header]
+        return r
 
 
