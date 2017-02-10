@@ -323,3 +323,49 @@ http://jinja.pocoo.org/docs/dev/extensions/
 
 
 
+==============================================================================
+Example of FlaskCBV Forms:
+
+
+
+## Simple form:
+from flaskcbv.forms import Form
+
+class myFormClass(Form):
+    def clean_test_passed(self, val):
+        ## self.cleaned_data['test_passed'] value will be 'passed' 
+        ## self.data['test_passed'] value will be val
+        return 'passed'      
+
+    def clean_test_error(self, val):
+        ## self.data['test_error'] value will be val
+        ## there is no key 'test_error' in self.cleaned_data
+        ## self.errors['test_error'] will be: 'Some Error' Exception
+        raise Exception('Some Error')
+
+
+
+
+from flaskcbv.view.crud import FormViewMixin
+from flaskcbv.view import TemplateView
+
+
+class myFormView(FormViewMixin, TemplateView):
+    template='index/some.tpl'
+    from_class = myFormClass
+
+    ## Here, on GET client recv's our template, where in context var.: 'form' we can access to cleaned form variables;
+    
+    ## Let's Redefine POST processing:
+    def post(self, *args, **kwargs):
+
+        ## Create our form object:
+        form = self.get_form() 
+
+        ## Check form, this will run form.clean that will start 'clean_ATTR' methods, like in django
+        if form.validate():
+            return self.form_valid(form)
+        else:
+            return self.form_invalid(form)
+
+
