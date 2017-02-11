@@ -352,7 +352,15 @@ from flaskcbv.view import TemplateView
 
 class myFormView(FormViewMixin, TemplateView):
     template='index/some.tpl'
-    from_class = myFormClass
+    form_class = myFormClass
+
+    ## Uncomment this, if you want default redirect:
+    #form_success_url = '/action/success/'
+    #form_unsuccess_url = '/action/unsuccess/'
+
+    ## Custom url for form success action:
+    #def get_from_success_url(self):
+    #    return "/some/other/success/url"
 
     ## Here, on GET client recv's our template, where in context var.: 'form' we can access to cleaned form variables;
     
@@ -364,8 +372,11 @@ class myFormView(FormViewMixin, TemplateView):
 
         ## Check form, this will run form.clean that will start 'clean_ATTR' methods, like in django
         if form.validate():
+            ## By default it's a redirect to self.form_success_url or self.get_from_success_url(): 
             return self.form_valid(form)
+
         else:
+            ## By default returns template with 'form' context variable:
             return self.form_invalid(form)
 
 

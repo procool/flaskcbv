@@ -6,6 +6,12 @@ class FormMixin(object):
     form_success_url = None
     form_unsuccess_url = None
 
+    def get_from_success_url(self):
+        return self.form_success_url
+
+    def get_from_unsuccess_url(self):
+        return self.form_unsuccess_url
+
     def get_form_class(self):
         return self.form_class
 
@@ -17,12 +23,12 @@ class FormMixin(object):
         return form_class(self.request.form, instance)
 
     def get_form_postprocess_url(self, is_valid=False):
-        if is_valid and self.form_success_url is not None:
-            return self.form_success_url
-        elif not is_valid and self.form_unsuccess_url is not None:
-            return self.form_unsuccess_url
+        if is_valid and self.get_form_success_url() is not None:
+            return self.get_form_success_url()
+        elif not is_valid and self.get_form_unsuccess_url() is not None:
+            return self.get_form_unsuccess_url()
         else:
-            raise ValueError('No URL to redirect to.  Either provide a url or define a get_absolute_url method on the Model.')  # FIXME: Je vhodne vyvolat ValueError?
+            raise ValueError('No URL to redirect to.  Either provide a url by "form_success_url" attr or "get_from_success_url" method.')
 
     def form_valid(self, form, *args, **kwargs):
         return redirect(self.get_form_postprocess_url(True))
