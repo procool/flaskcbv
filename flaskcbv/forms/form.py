@@ -36,8 +36,9 @@ class Form(object):
 
         for attr in clean_defs:
             item = attr[6:] ## "clean_"
-            if not item in self.data:
-                self.data[item] = None
+            ## WTF??!:
+            ##if not item in self.data:
+            ##    self.data[item] = None
             try:
                 self.cleaned_data[item] = getattr(self, attr)(self.data[item])
             except Exception as err:
