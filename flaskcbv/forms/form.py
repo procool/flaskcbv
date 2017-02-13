@@ -3,10 +3,15 @@ import logging
 
 class Form(object):
     def __init__(self, data={}, view=None):
-        self.data = data
+        self.raw_data = data
         self.view = view
         self.cleaned_data = {}
         self.errors = {}
+
+        ## Create simple dict from raw data(maybe it's ImutableMultiDict)
+        self.data = {}
+        for key in data.keys():
+            self.data[key] = self.raw_data[key]
 
 
     def get_clean_def(self, obj, attr):
@@ -36,14 +41,20 @@ class Form(object):
 
         for attr in clean_defs:
             item = attr[6:] ## "clean_"
-            ## WTF??!:
-            ##if not item in self.data:
-            ##    self.data[item] = None
+            if not item in self.data.keys():
+                self.data[item] = None
             try:
                 self.cleaned_data[item] = getattr(self, attr)(self.data[item])
             except Exception as err:
                 self.errors[item] = str(err)
                 continue
+
+        ## For all key that haven't processing defs: copy them from data to cleaned_data:
+        for key in self.data:
+            attr = 'clean_%s' % key
+            if attr in clean_defs:
+                continue
+            self.cleaned_data[key] = self.data[key]
 
 
     @property
