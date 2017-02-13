@@ -141,9 +141,8 @@ class TemplateMixin(View):
             template = self.template
         return template
 
-    def get_context_data(self):
-        return {
-        }
+    def get_context_data(self, **kwargs):
+        return dict(kwargs)
 
     def render_template(self, *args, **kwargs):
         context = self.get_context_data(*args, **kwargs)
@@ -151,8 +150,8 @@ class TemplateMixin(View):
 
 
 class TemplateView(TemplateMixin, View):
-    def get_context_data(self):
-        context = super(TemplateView, self).get_context_data()
+    def get_context_data(self, **kwargs):
+        context = super(TemplateView, self).get_context_data(**kwargs)
         context['request'] = self.request
         return context
 
