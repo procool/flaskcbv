@@ -1,5 +1,7 @@
 from flask import abort, redirect, url_for
+from flaskcbv.response import Response
 from generic import TemplateView
+
 
 class FormMixin(object):
     form_class = None  # Form class
@@ -42,7 +44,8 @@ class FormViewMixin(FormMixin):
 
     def get_context_data(self, *args, **kwargs):
         context = super(FormViewMixin, self).get_context_data(*args, **kwargs)
-        context['form'] = self.get_form()
+        if not 'form' in context:
+            context['form'] = self.get_form()
         return context
 
     def post(self, *args, **kwargs):
@@ -54,5 +57,7 @@ class FormViewMixin(FormMixin):
 
     def form_invalid(self, form, *args, **kwargs):
         kwargs['form'] = form
-        return self.render_template(*args, **kwargs)
+        data = self.render_template(*args, **kwargs)
+        return Response(data)
+
 
