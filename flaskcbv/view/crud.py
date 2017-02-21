@@ -1,3 +1,4 @@
+import logging
 import hashlib, os
 from itsdangerous import BadData, SignatureExpired, URLSafeTimedSerializer
 
@@ -53,10 +54,11 @@ class FormMixin(object):
 
 
     ## Check CSRF Token by session and form values:
-    def csrf_check(self, form):
+    def csrf_check_token(self, form):
         field_name = 'csrf_token'
+        time_limit = 3600
         token_s = self.session.pop(field_name, None)
-
+  
         if token_s is None or not field_name in form.data:
             raise Exception('No CSRF token found in session or in data')
 
@@ -105,7 +107,7 @@ class FormViewMixin(FormMixin):
         ## Make CSRF Check if enabled:
         if self.csrf_check:
             try:
-                self.csrf_check(form)
+                self.csrf_check_token(form)
             except Exception as err:
                 form.errors['csrf_token'] = '%s' % err
 
