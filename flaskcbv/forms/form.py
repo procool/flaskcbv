@@ -24,7 +24,8 @@ class Form(object):
 
 
     def validate(self, *args, **kwargs):
-        return self.clean(*args, **kwargs)
+        self.clean(*args, **kwargs)
+        return self.is_clean()
 
     def clean(self, *args, **kwargs):
 
