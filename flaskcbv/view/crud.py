@@ -1,7 +1,20 @@
+import hashlib, os
+from itsdangerous import BadData, SignatureExpired, URLSafeTimedSerializer
+
+from werkzeug.security import safe_str_cmp
+
 from flask import abort, redirect, url_for
 from flaskcbv.response import Response
 from generic import TemplateView
 
+try:
+    from flask import current_app
+    secret_key = current_app.secret_key
+except Exception as err:
+    current_app = None
+    secret_key = 'veryimportantsecretkey'
+
+dt_s = URLSafeTimedSerializer(secret_key, salt='flaskcbv-csrf-token')
 
 class FormMixin(object):
     form_class = None  # Form class
@@ -39,21 +52,68 @@ class FormMixin(object):
         return redirect(self.get_form_postprocess_url(False))
 
 
+    ## Check CSRF Token by session and form values:
+    def csrf_check(self, form):
+        field_name = 'csrf_token'
+        token_s = self.session.pop(field_name, None)
+
+        if token_s is None or not field_name in form.data:
+            raise Exception('No CSRF token found in session or in data')
+
+        try:
+            token = dt_s.loads(form.data[field_name], max_age=time_limit)
+        except SignatureExpired:
+            raise Exception('The CSRF token has expired')
+        except BadData:
+            raise Exception('The CSRF token is invalid')
+
+        if not safe_str_cmp(token_s, token):
+            raise Exception('Wrong CSRF token')
+
+
+    ## Generate CSRF Token and store it into session and context(if defined):
+    def csrf_gen_token(self, context=None):
+        field_name = 'csrf_token'
+        if field_name not in self.session:
+            self.session[field_name] = hashlib.sha1(os.urandom(64)).hexdigest()
+
+        secured_json = dt_s.dumps(self.session[field_name])
+        if context is not None:
+            context[field_name] = secured_json
+        return secured_json
+
+
+
 
 class FormViewMixin(FormMixin):
+    csrf_check = True
 
     def get_context_data(self, *args, **kwargs):
         context = super(FormViewMixin, self).get_context_data(*args, **kwargs)
         if not 'form' in context:
             context['form'] = self.get_form()
+
+        ## Generate CSRF token if enabled:
+        if self.csrf_check:
+            self.csrf_gen_token(context)
+
         return context
 
     def post(self, *args, **kwargs):
         form = self.get_form()
+
+        ## Make CSRF Check if enabled:
+        if self.csrf_check:
+            try:
+                self.csrf_check(form)
+            except Exception as err:
+                form.errors['csrf_token'] = '%s' % err
+
         if form.validate():
             return self.form_valid(form)
         else:
             return self.form_invalid(form)
+
 
     def form_invalid(self, form, *args, **kwargs):
         kwargs['form'] = form
