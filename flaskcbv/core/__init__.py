@@ -32,6 +32,7 @@ class CBVCore(object):
         register_tags(self.app.jinja_env)
 
     def make_urls(self):
+        self.views = []
         from urls import namespases
         try:
             from urls import namespases
@@ -42,6 +43,7 @@ class CBVCore(object):
             logging.debug('FlaskCBV: Registering url: %s' % url)
             url[0].obj.current_url = url[2]
             url[0].obj.url = url[0] ## backref to view.url
+            self.views.append(url[0].obj)
             self.app.add_url_rule(url[1], url[2], url[3], **url[4])
 
 
