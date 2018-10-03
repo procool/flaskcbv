@@ -31,12 +31,18 @@ class FormMixin(object):
     def get_form_class(self):
         return self.form_class
 
-    def get_form(self, form_class=None, instance=None):
+    def get_form_class_kwargs(self, **kwargs):
+        data = {}
+        data.update(kwargs)
+        return kwargs
+
+    def get_form(self, form_class=None, instance=None, **kwargs):
         if instance is None:
             instance = self
         if form_class is None:
             form_class = self.get_form_class()
-        return form_class(data=self.request.form, view=instance)
+        form_params = self.get_form_class_kwargs(data=self.request.form, view=instance, **kwargs)
+        return form_class(**form_params)
 
     def get_form_postprocess_url(self, is_valid=False):
         if is_valid and self.get_form_success_url() is not None:
