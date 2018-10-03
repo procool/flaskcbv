@@ -36,7 +36,7 @@ class FormMixin(object):
             instance = self
         if form_class is None:
             form_class = self.get_form_class()
-        return form_class(self.request.form, instance)
+        return form_class(data=self.request.form, view=instance)
 
     def get_form_postprocess_url(self, is_valid=False):
         if is_valid and self.get_form_success_url() is not None:
