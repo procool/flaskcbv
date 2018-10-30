@@ -7,7 +7,7 @@ from flaskcbv.core.base import get_flask
 
 
 class View(object):
-    options = {}
+    _options = {}
     AVALIBLE_METHODS = ["GET", "POST", "OPTIONS", "HEAD",]
     decorators = []
 
@@ -19,13 +19,13 @@ class View(object):
         self.url = None
         self.current_url = None
         if options is not None:
-            self.options = options
+            self._options = options
 
-        if not 'methods' in self.options:
-            self.options['methods'] = []
+        if not 'methods' in self._options:
+            self._options['methods'] = []
             for attr in dir(self):
                 if attr.upper() in self.AVALIBLE_METHODS:
-                    self.options['methods'].append(attr.upper())
+                    self._options['methods'].append(attr.upper())
         self.session = session
 
 
@@ -62,7 +62,7 @@ class View(object):
         view.__module__ = cls.__module__
         view.__flask = cls.__flask
         view.AVALIBLE_METHODS = cls.AVALIBLE_METHODS
-        view.options = cls.options
+        view._options = cls._options
         return view
 
 

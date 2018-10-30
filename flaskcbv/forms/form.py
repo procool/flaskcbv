@@ -2,7 +2,7 @@ import logging
 
 
 class Form(object):
-    def __init__(self, data={}, view=None):
+    def __init__(self, data={}, view=None, **kwargs):
         self.raw_data = data
         self.view = view
         self.cleaned_data = {}

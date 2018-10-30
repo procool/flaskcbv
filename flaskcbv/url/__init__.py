@@ -35,7 +35,7 @@ def make_urls(*namespases):
         ## as_view:                
         as_view = url.obj.__class__.__name__ == 'function' and True or False
 
-        endpoint = url.obj.options.pop('endpoint', None)
+        endpoint = url.obj._options.pop('endpoint', None)
         if endpoint is None:
             try:
                 endpoint = url.endpoint
@@ -45,7 +45,7 @@ def make_urls(*namespases):
                 else:
                     endpoint = url.obj.__class__.__name__
         def_ = as_view and url.obj or url.obj.prepare
-        urls.append([url, url.url, endpoint, def_, url.obj.options])
+        urls.append([url, url.url, endpoint, def_, url.obj._options])
     return urls
 
 
