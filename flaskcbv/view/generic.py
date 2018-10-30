@@ -7,7 +7,7 @@ from flaskcbv.core.base import get_flask
 
 
 class View(object):
-    _options = {}
+    options = {}
     AVALIBLE_METHODS = ["GET", "POST", "OPTIONS", "HEAD",]
     decorators = []
 
@@ -19,13 +19,13 @@ class View(object):
         self.url = None
         self.current_url = None
         if options is not None:
-            self._options = options
+            self.options = options
 
-        if not 'methods' in self._options:
-            self._options['methods'] = []
+        if not 'methods' in self.options:
+            self.options['methods'] = []
             for attr in dir(self):
                 if attr.upper() in self.AVALIBLE_METHODS:
-                    self._options['methods'].append(attr.upper())
+                    self.options['methods'].append(attr.upper())
         self.session = session
 
 
@@ -62,7 +62,7 @@ class View(object):
         view.__module__ = cls.__module__
         view.__flask = cls.__flask
         view.AVALIBLE_METHODS = cls.AVALIBLE_METHODS
-        view._options = cls._options
+        view.options = cls.options
         return view
 
 
@@ -73,6 +73,9 @@ class View(object):
 
     def dispatch(self, request, *args, **kwargs):
         meth = getattr(self, request.method.lower(), None)
+        if isinstance(meth, dict):
+            meth = getattr(self, 'method_%s' % request.method.lower(), None)
+
         # if the request method is HEAD and we don't have a handler for it
         # retry with GET
 
