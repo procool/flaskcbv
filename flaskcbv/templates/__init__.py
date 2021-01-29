@@ -22,7 +22,7 @@ def register_tag(environment, dirpath, name):
         except: tags = ''
         
         logging.info('FOUND Template Extention: %s: %s' % (name_, tags))
-        ## print environment.extensions
+        ## print (environment.extensions)
 
 
 def register_tags(environment):

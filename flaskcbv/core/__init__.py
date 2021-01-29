@@ -1,7 +1,7 @@
 import os, sys
 import logging
 
-from base import get_flask
+from flaskcbv.core.base import get_flask
 
 from flaskcbv.conf import settings
 from flaskcbv.templates import register_tags

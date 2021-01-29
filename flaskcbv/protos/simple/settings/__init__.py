@@ -9,7 +9,7 @@ DEFAULT_HEADERS = {
 }
 
 try:
-    from local import *
+    from .local import *
 except Exception as err:
     pass
 

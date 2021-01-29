@@ -6,5 +6,5 @@ class cmdStartApp(object):
         return commands
 
     def __main(self):
-        print "Starting application"
+        print ("Starting application")
 

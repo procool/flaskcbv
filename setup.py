@@ -28,7 +28,7 @@ if len(sys.argv) and not dirname(sys.argv[0]) == '':
 
 setup(
 	author = 'procool',
-	author_email = 'procool@procool.ru',
+	author_email = 'ya.procool@ya.ru',
 	license = 'BSD 2 Clause',
 	#url = 'http://procool.ru/',
 	#download_url = 'http://procool.ru/download/',
@@ -38,6 +38,7 @@ setup(
 	packages = find_packages(),
 	description=open(join(dirname(__file__), 'README')).readline(),
 	long_description=open(join(dirname(__file__), 'README')).read(),
+        long_description_content_type='text/plain',
 	    
 	entry_points={
 		'console_scripts':
@@ -54,6 +55,11 @@ setup(
 		#'Flask-SQLAlchemy', 
 	],
 
+	classifiers=[
+		"Programming Language :: Python :: 3.8",
+	],
+
         include_package_data=True,
         distclass=BinaryDistribution,
+        python_requires='>=3.6',
 )

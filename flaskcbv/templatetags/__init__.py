@@ -34,7 +34,7 @@ class loadExtension(Extension):
             if not extension.enabled:
                 continue
             self.environment.add_extension(extension)
-            print self.environment.extensions
+            print (self.environment.extensions)
         
         return caller()
 

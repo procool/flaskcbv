@@ -1,1 +1,1 @@
-from generic import View, TemplateView, TemplateIsAjaxView
+from flaskcbv.view.generic import View, TemplateView, TemplateIsAjaxView

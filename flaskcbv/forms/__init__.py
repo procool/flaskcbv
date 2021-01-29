@@ -1,1 +1,1 @@
-from form import Form
+from flaskcbv.forms.form import Form

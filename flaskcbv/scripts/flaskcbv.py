@@ -1,9 +1,9 @@
 import logging
 import sys
-from common import CommonMixin
-from cliargs import CliArgs
-from commands.initproject import cmdInitProject
-from commands.startapp import cmdStartApp
+from .common import CommonMixin
+from .cliargs import CliArgs
+from .commands.initproject import cmdInitProject
+from .commands.startapp import cmdStartApp
 
 ## Main wrapper class of this program:
 class FlaskCBV(cmdInitProject, cmdStartApp, CommonMixin, CliArgs):

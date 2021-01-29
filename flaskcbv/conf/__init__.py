@@ -1,6 +1,6 @@
 import os, sys
 
-from defaults import DefaultSettings
+from flaskcbv.conf.defaults import DefaultSettings
 
 ENVIRONMENT_VARIABLE = "FLASK_SETTINGS_MODULE"
 
