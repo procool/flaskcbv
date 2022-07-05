@@ -7,5 +7,5 @@ class Request(RequestFlask):
         return self.is_xhr
 
     @property
-    def remote_addr(self):
+    def remote_address(self):
         return self.environ.get('HTTP_X_REAL_IP', super(Request, self).remote_addr)
