@@ -6,7 +6,7 @@ from werkzeug.security import safe_str_cmp
 
 from flask import abort, redirect, url_for
 from flaskcbv.response import Response
-from generic import TemplateView
+from .generic import TemplateView
 
 try:
     from flask import current_app
