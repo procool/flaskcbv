@@ -35,7 +35,7 @@ There's also a separate settings module is specifically flask;
 ## Installation and setup:
 1. Install framework using pip:
 
-	$ sudo pip install flaskcbv
+	$ sudo pip3 install flaskcbv
 
   The required dependencies will be installed automatically.
 
@@ -52,7 +52,7 @@ There's also a separate settings module is specifically flask;
 4. Start server:
 
 	$ cd apps;
-	$ python start.py
+	$ python3 start.py
 
   The server starts by default on port 5555
 
