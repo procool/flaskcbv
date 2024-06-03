@@ -49,14 +49,20 @@ There's also a separate settings module is specifically flask;
 
   The project will be created in the current directory
 
-4. Start server:
+4. Create assets(static) files directory:
+        $ mkdir apps/assets
+   	$ touch apps/assets/some_test.js
+- You can request this file as http://127.0.0.1:5555/static/some_test.js ;
+- You can change the static file location in settings/local.py by variables: STATIC_PATH and STATIC_URL
+
+5. Start server:
 
 	$ cd apps;
 	$ python3 start.py
 
   The server starts by default on port 5555
 
-5. Try the server using your browser or telnet(in a separate shell), for e.g:
+6. Try the server using your browser or telnet(in a separate shell), for e.g:
 
 	$ telnet localhost 5555
 	Trying 127.0.0.1...
