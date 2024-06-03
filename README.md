@@ -35,37 +35,48 @@ There's also a separate settings module is specifically flask;
 ## Installation and setup:
 1. Install framework using pip:
 
-	$ sudo pip3 install flaskcbv
+	```
+	sudo pip3 install flaskcbv
+	```
 
   The required dependencies will be installed automatically.
 
 2. Create a directory of your project:
 
-	$ mkdir project; cd project
+	```
+	mkdir project; cd project
+ 	```
 
-3. Create project using flaskcbv utility:
+4. Create project using flaskcbv utility:
 
-	$ flaskcbv initproject
+	```
+	flaskcbv initproject
+ 	```
 
-  The project will be created in the current directory
+  	The project will be created in the current directory
 
-4. Create assets(static) files directory:
+6. Create assets(static) files directory:
+
+	```
+ 	mkdir apps/assets;
+ 	touch apps/assets/some_test.js
+ 	```
    
-        $ mkdir apps/assets
-   	$ touch apps/assets/some_test.js
-   
-- You can request this file as http://127.0.0.1:5555/static/some_test.js ;
-- You can change the static file location in settings/local.py by variables: STATIC_PATH and STATIC_URL
+	- You can request this file as http://127.0.0.1:5555/static/some_test.js ;
+	- You can change the static file location in settings/local.py by variables: STATIC_PATH and STATIC_URL
 
-5. Start server:
+7. Start server:
 
-	$ cd apps;
-	$ python3 start.py
+   	```
+	cd apps;
+	python3 start.py
+	```
 
-  The server starts by default on port 5555
+  	The server starts by default on port 5555
 
-6. Try the server using your browser or telnet(in a separate shell), for e.g:
+8. Try the server using your browser or telnet(in a separate shell), for e.g:
 
+	```
 	$ telnet localhost 5555
 	Trying 127.0.0.1...
 	Connected to localhost.
@@ -81,7 +92,7 @@ There's also a separate settings module is specifically flask;
 	It works on FlaskCBV! Connection closed by foreign host.
 	
 	Project is works, have fun:)
-	
+	```
 
 
 
