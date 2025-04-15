@@ -8,4 +8,4 @@ class Request(RequestFlask):
 
     @property
     def remote_address(self):
-        return self.environ.get('HTTP_X_REAL_IP', super(Request, self).remote_addr)
+        return self.environ.get('HTTP_X_REAL_IP', self.remote_addr)
