@@ -53,7 +53,7 @@ setup(
     install_requires=[
         'setuptools',
         'Flask',
-        'Werkzeug==2.0.0',
+        'Werkzeug==2.2.3',
         #'Flask-WTF',
         #'Flask-SQLAlchemy',
     ],
