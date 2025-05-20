@@ -1,6 +1,6 @@
 import logging
-import sys, os
-import string, random
+import sys, os, stat
+import string, secrets
 import traceback
 
 ## Some helpfull definations:
@@ -16,12 +16,13 @@ class CommonMixin(object):
             fstat = os.stat(file_)
         except Exception as err:
             logging.error(logprefix + 'Error on opening file %s: %s' % (file_, err))
-            raise(err)
+            raise
 
-            ## Not is file:
-            if not stat.S_ISREG(fstat.st_mode):
-                logging.error(logprefix + '%s IS NOT A FILE!' % file_)
-                raise(Exception("Not a file!"))
+        ## Not a file:
+        if not stat.S_ISREG(fstat.st_mode):
+            logging.error(logprefix + '%s IS NOT A FILE!' % file_)
+            raise Exception("Not a file!")
+
         return file_
 
 
@@ -36,7 +37,7 @@ class CommonMixin(object):
     @staticmethod
     def token_gen(size=6):
         chars=string.ascii_uppercase + string.digits
-        return ''.join(random.choice(chars) for _ in range(size))
+        return ''.join(secrets.choice(chars) for _ in range(size))
 
 
     @classmethod

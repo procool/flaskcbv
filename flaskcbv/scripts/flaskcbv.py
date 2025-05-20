@@ -20,7 +20,8 @@ class FlaskCBV(cmdInitProject, cmdStartApp, CommonMixin, CliArgs):
 def main():
     ## Create program object, and call command line arguments processing:
     o = FlaskCBV()
-    try: o.cli()
+    try:
+        o.cli()
     except Exception as err:
         logging.critical("%s" % err)
         o.log_traceback()

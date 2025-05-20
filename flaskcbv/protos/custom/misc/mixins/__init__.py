@@ -11,8 +11,10 @@ class DefaultContextVars(object):
 
         context_ = {}
         context_['STATIC_URL'] = settings.STATIC_URL
-        try: context_['AUTH_SESSION'] = self.session_id
-        except: context_['AUTH_SESSION'] = None
+        try:
+            context_['AUTH_SESSION'] = self.session_id
+        except AttributeError:
+            context_['AUTH_SESSION'] = None
         context_['REQUEST'] = self.request
 
         context = super(DefaultContextVars, self).get_context_data(*args, **kwargs)
@@ -39,8 +41,10 @@ class JSONView(getArgumentMixin, JSONMixin, View):
         return self.__json_indent
 
     def dispatch(self, request, *args, **kwargs):
-        try: self.__json_indent = int(request.args['json_indent'])
-        except: self.__json_indent = None
+        try:
+            self.__json_indent = int(request.args['json_indent'])
+        except (KeyError, ValueError):
+            self.__json_indent = None
         return Response(self.get_as_json())
 
 

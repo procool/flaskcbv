@@ -33,11 +33,10 @@ class CBVCore(object):
 
     def make_urls(self):
         self.views = []
-        from urls import namespases
         try:
             from urls import namespases
         except Exception as err:
-            raise(Exception("%s: You should create urls.py in your project directory!" % err))
+            raise Exception("%s: You should create urls.py in your project directory!" % err)
 
         for url in namespases:
             logging.debug('FlaskCBV: Registering url: %s' % url)

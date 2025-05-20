@@ -20,7 +20,7 @@ class CliArgs(object):
 
     ## Add command line arguments:
     def set_cli_parser_args (self, parser, *args, **kwargs):
-        parser.add_argument ('action', choices=self.get_cli_commands().keys(), )
+        parser.add_argument ('action', choices=list(self.get_cli_commands().keys()), )
         parser.add_argument ('-v', '--debug', choices=['d', 'debug', 'i', 'info', 'w', 'warning', 'e', 'error',], default='info',)
         pass
 

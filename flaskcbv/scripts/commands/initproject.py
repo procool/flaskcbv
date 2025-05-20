@@ -1,5 +1,5 @@
 import os, sys
-import string, random
+import string, secrets
 from jinja2 import Environment, FileSystemLoader
 
 
@@ -38,14 +38,14 @@ class cmdInitProject(object):
     @staticmethod
     def gen_token(size):
         chars=string.ascii_uppercase + string.digits + string.hexdigits + string.ascii_lowercase + '$,/[]'
-        return ''.join(random.choice(chars) for _ in range(size))
+        return ''.join(secrets.choice(chars) for _ in range(size))
 
 
     def get_render_params(self):
         return {
             'WEB': os.path.abspath('.'),
             'APPS': '%s/apps' % os.path.abspath('.'),
-            'SECRET_KEY' : self.gen_token(30)
+            'SECRET_KEY' : self.gen_token(50)
         }
 
     def build_proto(self, tpl, **params):
@@ -55,7 +55,8 @@ class cmdInitProject(object):
         if os.path.exists(newpath):
             raise Exception('Path allready exist: %s; May be existing project?!' % newpath)
         newdir = os.path.dirname(newpath)
-        try: os.makedirs(newdir)
+        try:
+            os.makedirs(newdir)
         except OSError as err:
             if not err.errno in (17,):
                 raise err

@@ -10,7 +10,7 @@ class Form(object):
 
         ## Create simple dict from raw data(maybe it's ImutableMultiDict)
         self.data = {}
-        for key in data.keys():
+        for key in data:
             self.data[key] = self.raw_data[key]
 
 
@@ -42,7 +42,7 @@ class Form(object):
 
         for attr in clean_defs:
             item = attr[6:] ## "clean_"
-            if not item in self.data.keys():
+            if not item in self.data:
                 self.data[item] = None
             try:
                 self.cleaned_data[item] = getattr(self, attr)(self.data[item])
@@ -60,7 +60,7 @@ class Form(object):
 
     @property
     def is_clean(self):
-        if len(self.errors.keys()) == 0:
+        if not self.errors:
             return True
         return False
 

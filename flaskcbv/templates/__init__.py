@@ -18,11 +18,12 @@ def register_tag(environment, dirpath, name):
         if not extension.enabled:
             continue
         environment.add_extension(extension)
-        try: tags = extension.tags
-        except: tags = ''
+        try:
+            tags = extension.tags
+        except AttributeError:
+            tags = ''
         
         logging.info('FOUND Template Extention: %s: %s' % (name_, tags))
-        ## print (environment.extensions)
 
 
 def register_tags(environment):
@@ -44,7 +45,8 @@ def register_tags(environment):
                 continue
             if [path_, name] in loaded:
                 continue
-            try: register_tag(environment, dirpath, name)
+            try:
+                register_tag(environment, dirpath, name)
             except Exception as err:
                 logging.error('Error on register templatetags %s with path "%s": %s' % (name, path_, err))
                 continue

@@ -1,21 +1,19 @@
 import logging
-import hashlib, os
+import hashlib, hmac, os
 from itsdangerous import BadData, SignatureExpired, URLSafeTimedSerializer
 
-from werkzeug.security import safe_str_cmp
-
-from flask import abort, redirect, url_for
+from flask import abort, current_app, redirect, url_for
 from flaskcbv.response import Response
+from flaskcbv.exceptions import ConfigurationError, CSRFError
 from .generic import TemplateView
 
-try:
-    from flask import current_app
-    secret_key = current_app.secret_key
-except Exception as err:
-    current_app = None
-    secret_key = 'veryimportantsecretkey'
 
-dt_s = URLSafeTimedSerializer(secret_key, salt='flaskcbv-csrf-token')
+def _get_dt_s():
+    ## Получаем сериализатор с ключом из текущего Flask-приложения:
+    secret_key = current_app.secret_key
+    if not secret_key:
+        raise ConfigurationError('SECRET_KEY не задан в конфигурации Flask-приложения')
+    return URLSafeTimedSerializer(secret_key, salt='flaskcbv-csrf-token')
 
 class FormMixin(object):
     form_class = None  # Form class
@@ -64,19 +62,19 @@ class FormMixin(object):
         field_name = 'csrf_token'
         time_limit = 3600
         token_s = self.session.pop(field_name, None)
-  
+
         if token_s is None or not field_name in form.data:
-            raise Exception('No CSRF token found in session or in data')
+            raise CSRFError('No CSRF token found in session or in data')
 
         try:
-            token = dt_s.loads(form.data[field_name], max_age=time_limit)
+            token = _get_dt_s().loads(form.data[field_name], max_age=time_limit)
         except SignatureExpired:
-            raise Exception('The CSRF token has expired')
+            raise CSRFError('The CSRF token has expired')
         except BadData:
-            raise Exception('The CSRF token is invalid')
+            raise CSRFError('The CSRF token is invalid')
 
-        if not safe_str_cmp(token_s, token):
-            raise Exception('Wrong CSRF token')
+        if not hmac.compare_digest(token_s, token):
+            raise CSRFError('Wrong CSRF token')
 
 
     ## Generate CSRF Token and store it into session and context(if defined):
@@ -85,7 +83,7 @@ class FormMixin(object):
         if field_name not in self.session:
             self.session[field_name] = hashlib.sha1(os.urandom(64)).hexdigest()
 
-        secured_json = dt_s.dumps(self.session[field_name])
+        secured_json = _get_dt_s().dumps(self.session[field_name])
         if context is not None:
             context[field_name] = secured_json
         return secured_json

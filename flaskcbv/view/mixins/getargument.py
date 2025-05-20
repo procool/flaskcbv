@@ -19,21 +19,28 @@ class getArgumentMixin(object):
 
     def get_argument_smart(self, key, as_get=True, as_post=True, as_session=False, as_cookie=False):
         if as_get:
-            try: return self.__get_argument_get(key)
-            except: pass
+            try:
+                return self.__get_argument_get(key)
+            except KeyError:
+                pass
 
         if as_post:
-            try: return self.__get_argument_post(key)
-            except: pass
+            try:
+                return self.__get_argument_post(key)
+            except KeyError:
+                pass
 
         if as_cookie:
-            try: return self.__get_argument_cookie(key)
-            except: pass
-
+            try:
+                return self.__get_argument_cookie(key)
+            except KeyError:
+                pass
 
         if as_session:
-            try: return self.__get_argument_session(key)
-            except: pass
+            try:
+                return self.__get_argument_session(key)
+            except KeyError:
+                pass
 
         raise KeyError(key)
 

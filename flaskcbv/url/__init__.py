@@ -14,7 +14,7 @@ class Url(object):
     @property
     def endpoint(self):
         if self.name is None:
-            raise(Exception("name attr is not defined!"))
+            raise Exception("name attr is not defined!")
         ns = self.namespace is not None and "%s:" % self.namespace or ''
         return "%s%s" % (ns, self.name)
 
@@ -39,7 +39,7 @@ def make_urls(*namespases):
         if endpoint is None:
             try:
                 endpoint = url.endpoint
-            except:
+            except Exception:
                 if as_view:
                     endpoint = url.obj.__name__
                 else:
@@ -55,7 +55,9 @@ def include(namespases, namespace=None, description=None, **kwargs):
         url = ns[0]
         url.namespace = namespace
         url.namespace_descr = description or namespace.upper() or ''
-        try: ns[2] = url.endpoint
-        except: pass
+        try:
+            ns[2] = url.endpoint
+        except Exception:
+            pass
     return namespases
 

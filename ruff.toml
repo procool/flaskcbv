@@ -1,0 +1,16 @@
+line-length = 120
+target-version = "py38"
+
+[lint]
+## E, F, W — базовые правила PEP8 и pyflakes; B — bugbear (частые ошибки)
+select = ["E", "F", "W", "B"]
+
+ignore = [
+    "E265",   ## block comment should start with '# ' — используем ## намеренно
+    "E266",   ## too many leading '#' for block comment — аналогично
+    "B006",   ## mutable default argument — есть в form.py, требует отдельного рефакторинга
+    "B007",   ## unused loop variable — есть в codebase
+]
+
+[lint.per-file-ignores]
+"flaskcbv/protos/**" = ["F401", "F811"]  ## прототипы могут иметь неиспользуемые импорты

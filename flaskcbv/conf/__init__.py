@@ -1,4 +1,4 @@
-import os, sys
+import os, sys, warnings
 
 from flaskcbv.conf.defaults import DefaultSettings
 
@@ -29,11 +29,6 @@ class BaseSettings(object):
     Common logic for settings whether set by a module or by the user.
     """
     def __setattr__(self, name, value):
-        #if name in ("MEDIA_URL", "STATIC_URL") and value and not value.endswith('/'):
-        #    raise ImproperlyConfigured("If set, %s must end with a slash" % name)
-        #elif name == "ALLOWED_INCLUDE_ROOTS" and isinstance(value, six.string_types):
-        #    raise ValueError("The ALLOWED_INCLUDE_ROOTS setting must be set "
-        #        "to a tuple, not a string.")
         object.__setattr__(self, name, value)
 
 
@@ -64,7 +59,7 @@ class Settings(DefaultSettings, BaseSettings):
             if setting == setting.upper():
                 setting_value = getattr(mod, setting)
                 if setting in tuple_settings and \
-                        isinstance(setting_value, six.string_types):
+                        isinstance(setting_value, str):
                     warnings.warn("The %s setting must be a tuple. Please fix your "
                                   "settings, as auto-correction is now deprecated." % setting,
                                   DeprecationWarning, stacklevel=2)

@@ -28,15 +28,18 @@ class JSONMixin(object):
         return kwargs
 
     def get_context_data(self, *args, **kwargs):
-        try: return super(JSONMixin, self).get_context_data(*args, **kwargs)
-        except: return kwargs
+        try:
+            return super(JSONMixin, self).get_context_data(*args, **kwargs)
+        except AttributeError:
+            return kwargs
 
 
     def get_as_json_data(self, **data):
         answ = {'errno': 0, 'error': 'Ok', 'details': '',}
 
-        try: context = self.get_context_data()
-        except Exception as err: 
+        try:
+            context = self.get_context_data()
+        except Exception as err:
             self.test_abort_exception(err)
             context = {
                 'errno': -1,
@@ -49,15 +52,18 @@ class JSONMixin(object):
         include_ = self.json_response_include()
         if include_ is not None:
             for item in include_:
-                try: answ[item] = context[item]
-                except: pass
+                try:
+                    answ[item] = context[item]
+                except KeyError:
+                    pass
         else:
             answ.update(context)
 
-
         for item in self.json_response_exclude():
-            try: del answ[item]
-            except: pass
+            try:
+                del answ[item]
+            except KeyError:
+                pass
         return answ
 
     def get_as_json(self, **data):

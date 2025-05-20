@@ -52,17 +52,20 @@ setup(
 
     install_requires=[
         'setuptools',
-        'Flask',
-        'Werkzeug==2.0.0',
-        #'Flask-WTF',
-        #'Flask-SQLAlchemy',
+        'Flask>=2.0',
+        'Werkzeug>=2.1',
     ],
 
     classifiers=[
         "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.10",
+        "Programming Language :: Python :: 3.11",
+        "Programming Language :: Python :: 3.12",
     ],
 
+    package_data={"flaskcbv": ["py.typed"]},
     include_package_data=True,
     distclass=BinaryDistribution,
-    python_requires='>=3.6',
+    python_requires='>=3.8',
 )
