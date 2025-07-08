@@ -36,6 +36,8 @@ class Flask(FlaskBase):
         if len(dirs_) > 0:
             logging.debug('TEMPLATE DIRECTORIES: %s' % dirs_)
             return FileSystemLoader(dirs_)
+        logging.warning('FlaskCBV: no template directories configured, template rendering will not work')
+        return FileSystemLoader([])
 
     ## Returns all defined urls:
     def get_all_urls(self, with_defs=False, **kwargs):

@@ -246,10 +246,58 @@ FlaskCBV API
 
 Получение singletone Flask: flaskcbv.core.base.get_flask
 
+Инициализация приложения: flaskcbv.core.create_engine
+    Начиная с версии 2.0.0 движок фреймворка необходимо создавать явно через фабричную функцию.
+    Функция create_engine() создаёт и возвращает экземпляр CBVCore.
+    Должна вызываться после установки переменной окружения FLASK_SETTINGS_MODULE.
+
+    Использование:
+        from flaskcbv.core import create_engine
+        engine = create_engine()
+        application = engine.app
+        application.secret_key = 'your-secret-key'
 
 
 
 
+
+
+
+МИГРАЦИЯ С ВЕРСИИ 1.x НА 2.x
+=============================
+
+В версии 2.0.0 изменён способ инициализации фреймворка.
+Движок больше не создаётся автоматически при импорте flaskcbv.core.
+
+Необходимые изменения в файле project.py каждого существующего проекта:
+
+    БЫЛО (flaskcbv 1.x):
+        from flaskcbv.core import engine
+        application = engine.app
+        application.secret_key = 'your-secret-key'
+
+    СТАЛО (flaskcbv 2.x):
+        from flaskcbv.core import create_engine
+        engine = create_engine()
+        application = engine.app
+        application.secret_key = 'your-secret-key'
+
+Дополнительно (рекомендуется, не обязательно):
+    В файле start.py заменить хардкод параметров запуска на чтение из переменных окружения:
+
+    БЫЛО:
+        application.run(debug=True, host='0.0.0.0', port=5555)
+
+    СТАЛО:
+        debug = os.environ.get('FLASK_DEBUG', 'false').lower() == 'true'
+        host  = os.environ.get('FLASK_HOST', '127.0.0.1')
+        port  = int(os.environ.get('FLASK_PORT', '5000'))
+        application.run(debug=debug, host=host, port=port)
+
+Переменные окружения для управления запуском:
+    FLASK_DEBUG  — включить debug-режим (значение: 'true' / 'false', по умолчанию 'false')
+    FLASK_HOST   — адрес для прослушивания (по умолчанию '127.0.0.1')
+    FLASK_PORT   — порт (по умолчанию 5000)
 
 
 СХЕМА РАБОТЫ:

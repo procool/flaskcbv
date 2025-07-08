@@ -46,4 +46,7 @@ class CBVCore(object):
             self.app.add_url_rule(url[1], url[2], url[3], **url[4])
 
 
-engine = CBVCore()
+def create_engine(**kwargs):
+    ## Factory function: creates and returns a CBVCore engine instance.
+    ## Must be called explicitly in project.py after setting FLASK_SETTINGS_MODULE.
+    return CBVCore(**kwargs)

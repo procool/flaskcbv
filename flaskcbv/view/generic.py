@@ -11,8 +11,6 @@ class View(object):
     AVALIBLE_METHODS = ["GET", "POST", "OPTIONS", "HEAD",]
     decorators = []
 
-    __flask = get_flask()
-
     def __init__(self, options=None, **kwargs):
 
         self.request = request
@@ -60,7 +58,6 @@ class View(object):
         view.__name__ = name
         view.__doc__ = cls.__doc__
         view.__module__ = cls.__module__
-        view.__flask = cls.__flask
         view.AVALIBLE_METHODS = cls.AVALIBLE_METHODS
         view.options = cls.options
         return view
@@ -109,7 +106,7 @@ class View(object):
     ## Returns all defined urls:
     @classmethod
     def get_all_urls(cls_, **kwargs):
-        return cls_.__flask.get_all_urls(**kwargs)
+        return get_flask().get_all_urls(**kwargs)
 
 
     @staticmethod

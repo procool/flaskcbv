@@ -1,5 +1,58 @@
 # Changelog
 
+## [2.0.0] — 2026-04-04
+
+### BREAKING CHANGES — требуется обновление существующих проектов
+
+**Изменён способ инициализации фреймворка.**
+Движок больше не создаётся автоматически при импорте `flaskcbv.core`.
+
+Необходимо обновить `project.py` в каждом проекте:
+
+```python
+## БЫЛО (1.x):
+from flaskcbv.core import engine
+application = engine.app
+
+## СТАЛО (2.x):
+from flaskcbv.core import create_engine
+engine = create_engine()
+application = engine.app
+```
+
+### Архитектура
+
+- **`flaskcbv/core/__init__.py`** — удалён `engine = CBVCore()` с уровня модуля.
+  Добавлена фабричная функция `create_engine(**kwargs)`. Движок теперь создаётся
+  явно в `project.py` проекта, что позволяет импортировать фреймворк без немедленного
+  создания Flask-приложения и устраняет проблемы с тестированием.
+
+- **`flaskcbv/view/generic.py`** — удалён атрибут класса `__flask = get_flask()`,
+  который вычислялся в момент определения класса (до создания движка).
+  `View.get_all_urls()` теперь вызывает `get_flask()` лениво при каждом обращении.
+
+- **`flaskcbv/protos/*/apps/project.py`** — шаблоны новых проектов обновлены:
+  `from flaskcbv.core import engine` → `from flaskcbv.core import create_engine`.
+
+- **`flaskcbv/protos/*/apps/start.py`** — убран хардкод `debug=True, host='0.0.0.0'`.
+  Параметры запуска теперь читаются из переменных окружения:
+  `FLASK_DEBUG` (default: false), `FLASK_HOST` (default: 127.0.0.1), `FLASK_PORT` (default: 5000).
+
+- **`flaskcbv/core/base.py`** — `jinja_loader` теперь возвращает пустой `FileSystemLoader`
+  вместо `None` при отсутствии настроенных директорий шаблонов, с предупреждением в лог.
+
+### Документация
+
+- `API_RUS.txt` — добавлен раздел «МИГРАЦИЯ С ВЕРСИИ 1.x НА 2.x» с подробными
+  инструкциями по обновлению существующих проектов.
+- `API_RUS.txt` — описана функция `create_engine()`.
+
+### Версия
+
+- Мажорная версия повышена с `1.6.1` до `2.0.0` в связи с нарушением обратной совместимости.
+
+---
+
 ## [1.6.1] — 2026-04-03
 
 ### Качество кода
