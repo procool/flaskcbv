@@ -56,6 +56,14 @@ setup(
         'Werkzeug>=2.1',
     ],
 
+    extras_require={
+        'dev': [
+            'pytest>=7.0',
+            'pytest-flask',
+            'coverage',
+        ],
+    },
+
     classifiers=[
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",

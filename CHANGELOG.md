@@ -1,5 +1,36 @@
 # Changelog
 
+## [2.1.0] — 2026-04-04
+
+### Тесты и CI
+
+- Добавлена тестовая инфраструктура: `tests/conftest.py`, `tests/settings.py`,
+  `tests/urls.py` с тестовыми представлениями.
+- `tests/test_forms.py` — 12 тестов: инициализация, валидация, `clean_*` методы,
+  `is_clean`, совместимость с `ImmutableMultiDict`.
+- `tests/test_views.py` — 11 тестов: HTTP-методы, 405/404, `as_view()`,
+  `get_all_urls()`, `is_abort_exception()`.
+- `tests/test_url.py` — 10 тестов: `Url`, `make_urls()`, `include()`,
+  namespace'ы, endpoint'ы.
+- `tests/test_conf.py` — 7 тестов: `DefaultSettings`, `Settings`,
+  поведение при отсутствии / невалидном `FLASK_SETTINGS_MODULE`.
+- `tests/test_csrf.py` — 8 тестов: `_get_dt_s()`, `csrf_gen_token()`,
+  `csrf_check_token()`, `ConfigurationError`, `CSRFError`.
+- `tests/test_request.py` — 3 теста: `remote_address` с `HTTP_X_REAL_IP`
+  и без него.
+- `tests/test_cli.py` — 10 тестов: `token_gen()`, `gen_token()`, уникальность
+  токенов, регистрация CLI-команд, `build_proto()`.
+- `setup.cfg` — конфигурация pytest (`testpaths`, `python_files` и т.д.).
+- `setup.py` — добавлен `extras_require['dev']`: `pytest>=7.0`, `pytest-flask`,
+  `coverage`.
+- `.github/workflows/test.yml` — CI-матрица: Python 3.9–3.12 × Flask 2.x / 3.x.
+
+### Версия
+
+- Версия повышена с `2.0.0` до `2.1.0`.
+
+---
+
 ## [2.0.0] — 2026-04-04
 
 ### BREAKING CHANGES — требуется обновление существующих проектов
