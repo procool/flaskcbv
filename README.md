@@ -150,6 +150,151 @@ regards, procool@
 
 
 
+---
+
+## Running Tests
+
+### Prerequisites
+
+Install the framework with development dependencies:
+
+```bash
+pip install -e ".[dev]"
+```
+
+This installs `pytest`, `pytest-flask`, and `coverage` in addition to the
+regular dependencies.
+
+---
+
+### Running the full test suite
+
+From the **project root** (the directory containing `setup.py`):
+
+```bash
+pytest
+```
+
+pytest will discover all tests automatically using the configuration in
+`setup.cfg` (`testpaths = tests`).
+
+---
+
+### Useful pytest options
+
+```bash
+## Run with verbose output (show each test name):
+pytest -v
+
+## Stop on first failure:
+pytest -x
+
+## Run a single test file:
+pytest tests/test_forms.py
+
+## Run a single test class:
+pytest tests/test_views.py::TestViewHTTPMethods
+
+## Run a single test by name:
+pytest tests/test_csrf.py::TestCsrfCheckToken::test_valid_token_passes
+
+## Show stdout output (print statements):
+pytest -s
+
+## Run only tests matching a keyword:
+pytest -k "csrf"
+```
+
+---
+
+### Coverage report
+
+```bash
+## Run tests and print a coverage summary:
+coverage run -m pytest
+coverage report
+
+## Generate an HTML report (opens in browser):
+coverage html
+open htmlcov/index.html
+```
+
+---
+
+### How the test infrastructure works
+
+The test suite lives in the `tests/` directory and contains three
+supporting files that are **not test files themselves**:
+
+| File | Purpose |
+|------|---------|
+| `tests/conftest.py` | pytest fixtures (engine, app, client, contexts) |
+| `tests/settings.py` | Minimal flaskcbv settings module for tests |
+| `tests/urls.py` | Minimal URL config with two test views |
+
+**Important:** `conftest.py` inserts `tests/` at the front of `sys.path`
+and sets `FLASK_SETTINGS_MODULE=settings` **before** importing anything
+from flaskcbv. This is required because `flaskcbv.conf` reads the settings
+module at import time.
+
+The main fixtures provided by `conftest.py`:
+
+| Fixture | Scope | Description |
+|---------|-------|-------------|
+| `engine` | session | Single `CBVCore` instance shared across all tests |
+| `app` | session | Flask app with `TESTING=True` and `SECRET_KEY` set |
+| `client` | function | Flask test client (fresh per test) |
+| `app_ctx` | function | Active application context |
+| `req_ctx` | function | Active request context |
+
+The `engine` and `app` fixtures are **session-scoped** to avoid duplicate
+endpoint registration errors that would occur if the Flask app were
+re-created for every test.
+
+---
+
+### What is tested
+
+| File | Covers |
+|------|--------|
+| `test_forms.py` | `Form` init, data copy, `clean_*` methods, errors, `is_clean`, `ImmutableMultiDict` |
+| `test_views.py` | HTTP methods, 404/405, `as_view()`, `get_all_urls()`, abort helpers |
+| `test_url.py` | `Url`, `make_urls()`, `include()`, namespaces, endpoints |
+| `test_conf.py` | `DefaultSettings`, `Settings` init, missing/invalid `FLASK_SETTINGS_MODULE` |
+| `test_csrf.py` | `_get_dt_s()`, `csrf_gen_token()`, `csrf_check_token()`, `ConfigurationError`, `CSRFError` |
+| `test_request.py` | `remote_address` with and without `HTTP_X_REAL_IP` header |
+| `test_cli.py` | `token_gen()`, `gen_token()`, token uniqueness, CLI commands, `build_proto()` |
+
+---
+
+### Writing new tests
+
+1. Add a `test_*.py` file to `tests/`.
+2. Use fixtures from `conftest.py` as function arguments:
+
+```python
+def test_my_view(client):
+    r = client.get('/')
+    assert r.status_code == 200
+```
+
+3. For tests that need an app or request context but not HTTP calls,
+   use `app_ctx` or `req_ctx`:
+
+```python
+def test_something_in_context(app_ctx):
+    from flask import current_app
+    assert current_app.config['TESTING'] is True
+```
+
+4. If you need a new test route, add it to `tests/urls.py`.
+
+5. If you need different settings, monkeypatch `os.environ` and
+   instantiate `Settings()` directly — do not modify `tests/settings.py`
+   as it is shared across all tests.
+
+---
+
 ## FlaskCBV Examples:
 
 
