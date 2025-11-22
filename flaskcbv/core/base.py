@@ -8,6 +8,12 @@ from functools import cached_property
 from flaskcbv.request import Request
 
 class Flask(FlaskBase):
+    """Flask subclass used internally by FlaskCBV.
+
+    Replaces the default request class with FlaskCBV's ``Request`` and
+    provides a configurable multi-directory Jinja2 template loader.
+    """
+
     request_class = Request
 
     def __init__(self, *args, **kwargs):
@@ -49,7 +55,21 @@ class Flask(FlaskBase):
 
 
 flask_ = [None]
+
+
 def get_flask(**setts):
+    """Return the singleton ``Flask`` instance, creating it if necessary.
+
+    Subsequent calls with no arguments return the already-created instance.
+    Pass ``**setts`` only on the first call (done internally by ``CBVCore``).
+
+    Args:
+        **setts: Keyword arguments forwarded to the ``Flask`` constructor
+            on first call.
+
+    Returns:
+        Flask: The application singleton.
+    """
     if flask_[0] is None:
         flask_[0] = Flask(__name__, **setts)
     return flask_[0]

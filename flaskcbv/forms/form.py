@@ -2,6 +2,25 @@ import logging
 
 
 class Form(object):
+    """Base form class for FlaskCBV.
+
+    Supports Django-like ``clean_<field>()`` methods for per-field
+    validation.  Use with ``FormViewMixin`` for automatic form handling::
+
+        class MyForm(Form):
+            def clean_email(self, value):
+                if '@' not in value:
+                    raise ValueError('Invalid email')
+                return value.lower()
+
+    Attributes:
+        raw_data (dict): Unprocessed data as received (e.g. ImmutableMultiDict).
+        data (dict): Shallow copy of raw_data as a plain dict.
+        cleaned_data (dict): Field values after successful ``clean_*`` calls.
+        errors (dict): Field name → error message for failed ``clean_*`` calls.
+        view: The view instance that created this form.
+    """
+
     def __init__(self, data={}, view=None, **kwargs):
         self.raw_data = data
         self.view = view
@@ -24,10 +43,21 @@ class Form(object):
 
 
     def validate(self, *args, **kwargs):
+        """Run all clean methods and return whether the form is valid.
+
+        Returns:
+            bool: True if no errors were produced, False otherwise.
+        """
         self.clean(*args, **kwargs)
         return self.is_clean
 
     def clean(self, *args, **kwargs):
+        """Execute all ``clean_<field>`` methods and populate ``cleaned_data``.
+
+        Fields that raise an exception have their message stored in
+        ``self.errors`` and are excluded from ``cleaned_data``.  Fields
+        without a corresponding ``clean_`` method are copied as-is.
+        """
 
         clean_defs = []
         if hasattr(self, 'get_clean_defs'):
@@ -60,6 +90,11 @@ class Form(object):
 
     @property
     def is_clean(self):
+        """True if no validation errors have been recorded.
+
+        Returns:
+            bool: True when ``self.errors`` is empty.
+        """
         if not self.errors:
             return True
         return False

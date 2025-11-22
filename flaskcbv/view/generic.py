@@ -7,6 +7,26 @@ from flaskcbv.core.base import get_flask
 
 
 class View(object):
+    """Base class-based view.
+
+    Subclass this and define ``get()``, ``post()``, or other HTTP-method
+    handlers.  Register with Flask via ``Url`` and ``make_urls()``::
+
+        class MyView(View):
+            def get(self, request, *args, **kwargs):
+                return Response('hello')
+
+        # in urls.py:
+        namespases = make_urls(Url('/', MyView(), name='index'))
+
+    Attributes:
+        options (dict): Extra keyword arguments forwarded to
+            ``app.add_url_rule()``, e.g. ``{'methods': ['GET']}``.
+        AVALIBLE_METHODS (list): HTTP methods this view may handle.
+            Methods not in this list result in a 405 response.
+        decorators (list): View-level decorators applied by ``as_view()``.
+    """
+
     options = {}
     AVALIBLE_METHODS = ["GET", "POST", "OPTIONS", "HEAD",]
     decorators = []
@@ -65,10 +85,33 @@ class View(object):
 
 
     def prepare(self, *args, **kwargs):
+        """Entry point called by Flask on every incoming request.
+
+        Calls ``dispatch()``, then renders the returned ``Response``
+        with headers from ``get_headers()``.
+
+        Returns:
+            flask.Response: The rendered HTTP response.
+        """
         response = self.dispatch(request, *args, **kwargs)
         return response.render(headers=self.get_headers())
 
     def dispatch(self, request, *args, **kwargs):
+        """Route the request to the correct HTTP-method handler.
+
+        Resolves ``request.method`` to a same-named instance method
+        (``get``, ``post``, etc.).  HEAD falls back to ``get`` when no
+        explicit handler is defined.  Returns 405 if the method is not
+        available.
+
+        Args:
+            request: The current Flask request object.
+            *args: Positional URL rule captures.
+            **kwargs: Named URL rule captures.
+
+        Returns:
+            Response: Result of the matched handler.
+        """
         meth = getattr(self, request.method.lower(), None)
         if isinstance(meth, dict):
             meth = getattr(self, 'method_%s' % request.method.lower(), None)
@@ -93,6 +136,14 @@ class View(object):
 
     ## Returns response headers:
     def get_headers(self, **kwargs):
+        """Return headers to include in the HTTP response.
+
+        Override to add custom headers.  The result is merged with
+        ``DEFAULT_HEADERS`` from settings inside ``Response.render()``.
+
+        Returns:
+            dict: Header name → value mapping.
+        """
         return kwargs
 
 
@@ -106,11 +157,28 @@ class View(object):
     ## Returns all defined urls:
     @classmethod
     def get_all_urls(cls_, **kwargs):
+        """Return all URL endpoints registered with the Flask application.
+
+        Args:
+            **kwargs: Forwarded to ``Flask.get_all_urls()``.
+                Pass ``with_defs=True`` to get the full view-function dict.
+
+        Returns:
+            list: Endpoint names, or dict when ``with_defs=True``.
+        """
         return get_flask().get_all_urls(**kwargs)
 
 
     @staticmethod
     def is_abort_exception(ex):
+        """Check whether *ex* is a Flask HTTP exception (abort-style).
+
+        Args:
+            ex (Exception): The exception to inspect.
+
+        Returns:
+            bool: True if *ex* looks like a werkzeug HTTPException.
+        """
         if hasattr(ex, 'code'):
             return True
         if hasattr(ex, 'get_headers'):
@@ -121,12 +189,30 @@ class View(object):
 
     @classmethod
     def test_abort_exception(cls, ex):
+        """Re-raise *ex* if it is a Flask abort-style exception.
+
+        Use inside ``get_as_json_data`` or similar error-handling code
+        to let HTTP errors propagate while swallowing ordinary exceptions.
+
+        Args:
+            ex (Exception): The exception to test.
+
+        Raises:
+            ex: Re-raised if ``is_abort_exception(ex)`` returns True.
+        """
         if cls.is_abort_exception(ex):
             raise ex
     
 
 
 class TemplateMixin(View):
+    """Mixin that adds Jinja2 template rendering to a View.
+
+    Attributes:
+        template (str): Path to the Jinja2 template, relative to
+            one of the configured template directories.
+    """
+
     template = None
 
     def __init__(self, template=None, **kwargs):
@@ -137,11 +223,26 @@ class TemplateMixin(View):
 
 
     def get_template_name(self, template=None):
+        """Return the template path to render.
+
+        Args:
+            template (str, optional): Override the class-level template.
+
+        Returns:
+            str: Template path.
+        """
         if template is None:
             template = self.template
         return template
 
     def get_context_data(self, **kwargs):
+        """Return the template context dictionary.
+
+        Override to inject additional variables.
+
+        Returns:
+            dict: Context passed to the template.
+        """
         return dict(kwargs)
 
     def render_template(self, *args, **kwargs):
@@ -150,6 +251,20 @@ class TemplateMixin(View):
 
 
 class TemplateView(TemplateMixin, View):
+    """View that renders a Jinja2 template on GET requests.
+
+    Adds ``request`` to the template context automatically.
+    Override ``get_context_data()`` to supply additional variables::
+
+        class MyView(TemplateView):
+            template = 'app/index.tpl'
+
+            def get_context_data(self, **kwargs):
+                ctx = super().get_context_data(**kwargs)
+                ctx['title'] = 'Hello'
+                return ctx
+    """
+
     def get_context_data(self, **kwargs):
         context = super(TemplateView, self).get_context_data(**kwargs)
         context['request'] = self.request
@@ -165,6 +280,13 @@ class TemplateView(TemplateMixin, View):
 
 
 class TemplateIsAjaxView(TemplateView):
+    """TemplateView that serves different templates for AJAX vs normal requests.
+
+    For a template named ``index.tpl``, AJAX requests receive
+    ``index-ajax.tpl``; for ``index-ajax.tpl``, normal requests
+    receive ``index.tpl``.  Detection is based on ``request.is_ajax``.
+    """
+
     def get_template_name(self, is_ajax=None, **kwargs):
         template = super(TemplateIsAjaxView, self).get_template_name(**kwargs)
         

@@ -1,5 +1,16 @@
 
 class Url(object):
+    """Descriptor that binds a URL path to a view object or include.
+
+    Args:
+        url (str): URL path, e.g. ``'/users/<int:id>'``.
+        obj: A ``View`` instance, an ``as_view()`` callable, or the
+            result of ``include()`` for nested URL configs.
+        name (str, optional): Endpoint name used for ``url_for()`` lookups.
+        namespace (str, optional): Namespace prefix set by ``include()``.
+        namespace_descr (str): Human-readable namespace description.
+    """
+
     def __init__(self, url, obj, name=None, namespace=None, namespace_descr=''):
         self.url = url
         self.obj = obj
@@ -13,6 +24,14 @@ class Url(object):
 
     @property
     def endpoint(self):
+        """Full endpoint string, including namespace prefix when set.
+
+        Returns:
+            str: E.g. ``'main:index'`` or ``'index'``.
+
+        Raises:
+            Exception: If ``name`` was not provided.
+        """
         if self.name is None:
             raise Exception("name attr is not defined!")
         ns = self.namespace is not None and "%s:" % self.namespace or ''
@@ -22,6 +41,25 @@ class Url(object):
 
 
 def make_urls(*namespases):
+    """Build the URL table consumed by ``CBVCore.make_urls()``.
+
+    Each ``Url`` entry is expanded into a 5-element list:
+    ``[Url, path, endpoint, callable, options]``.
+
+    Args:
+        *namespases: ``Url`` instances to register.
+
+    Returns:
+        list: Flat list of URL entries ready for ``add_url_rule()``.
+
+    Example:
+        ::
+
+            namespases = make_urls(
+                Url('/',      IndexView(), name='index'),
+                Url('/about', AboutView(), name='about'),
+            )
+    """
     urls = []
 
     for url in namespases:
@@ -51,6 +89,25 @@ def make_urls(*namespases):
 
 
 def include(namespases, namespace=None, description=None, **kwargs):
+    """Attach a namespace to an imported URL list.
+
+    Use inside a parent ``urls.py`` to mount a sub-application under a
+    named namespace so its endpoints are reachable as ``namespace:name``::
+
+        from apps.blog import urls as blog_urls
+
+        namespases = make_urls(
+            Url('/blog', include(blog_urls.namespases, namespace='blog')),
+        )
+
+    Args:
+        namespases (list): URL table returned by ``make_urls()`` from another module.
+        namespace (str, optional): Namespace string to assign to every entry.
+        description (str, optional): Human-readable label for the namespace.
+
+    Returns:
+        list: The same URL table with namespace set on each ``Url`` object.
+    """
     for ns in namespases:
         url = ns[0]
         url.namespace = namespace

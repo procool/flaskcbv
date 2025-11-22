@@ -1,6 +1,16 @@
-# FlaskCBV Installation manual
+# FlaskCBV
 
+![Tests](https://github.com/procool/flaskcbv/actions/workflows/test.yml/badge.svg)
+![Python versions](https://img.shields.io/pypi/pyversions/flaskcbv)
+![PyPI version](https://img.shields.io/pypi/v/flaskcbv)
+![License](https://img.shields.io/pypi/l/flaskcbv)
 
+## Compatibility
+
+| FlaskCBV | Python      | Flask     | Werkzeug  |
+|----------|-------------|-----------|-----------|
+| 2.x      | 3.8 – 3.12  | 2.0 – 3.x | ≥ 2.1     |
+| 1.x      | 3.6 – 3.8   | 1.x       | 2.0.0     |
 
 ## Introduction
 

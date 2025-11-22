@@ -1,5 +1,32 @@
 # Changelog
 
+## [2.2.0] — 2026-04-03
+
+### Документация
+
+- **Google-style docstrings** — добавлены docstring'и ко всем публичным классам и методам:
+  `flaskcbv/exceptions.py`, `flaskcbv/view/generic.py`, `flaskcbv/view/crud.py`,
+  `flaskcbv/forms/form.py`, `flaskcbv/url/__init__.py`, `flaskcbv/core/__init__.py`,
+  `flaskcbv/core/base.py`, `flaskcbv/request.py`, `flaskcbv/response.py`,
+  `flaskcbv/view/mixins/getargument.py`, `flaskcbv/view/mixins/jsonmixin.py`.
+  Выбранный формат: **Google-style** (секции `Args:`, `Returns:`, `Raises:`, `Attributes:`).
+
+- **`docs/api.md`** — создан полный англоязычный API-справочник по всем публичным
+  классам и методам фреймворка: `flaskcbv.core`, `flaskcbv.url`, `flaskcbv.view`,
+  `flaskcbv.view.crud`, `flaskcbv.view.mixins`, `flaskcbv.forms`, `flaskcbv.request`,
+  `flaskcbv.response`, `flaskcbv.exceptions`, `flaskcbv.conf`.
+
+- **`README.md`** — добавлены badges (CI, PyPI version, Python versions, License),
+  таблица совместимости (FlaskCBV × Python × Flask × Werkzeug),
+  раздел «Running Tests» с описанием инфраструктуры, полезных опций pytest
+  и генерации coverage-отчётов.
+
+### Версия
+
+- Версия повышена с `2.1.0` до `2.2.0`.
+
+---
+
 ## [2.1.0] — 2026-04-04
 
 ### Тесты и CI

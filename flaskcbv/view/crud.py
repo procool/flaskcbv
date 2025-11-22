@@ -9,6 +9,17 @@ from .generic import TemplateView
 
 
 def _get_dt_s():
+    """Return a URLSafeTimedSerializer bound to the current app's SECRET_KEY.
+
+    Called lazily inside request context so the key is always read from
+    the live Flask config rather than captured at import time.
+
+    Returns:
+        URLSafeTimedSerializer: Serializer with salt ``flaskcbv-csrf-token``.
+
+    Raises:
+        ConfigurationError: If ``current_app.secret_key`` is falsy.
+    """
     ## Получаем сериализатор с ключом из текущего Flask-приложения:
     secret_key = current_app.secret_key
     if not secret_key:
@@ -16,6 +27,14 @@ def _get_dt_s():
     return URLSafeTimedSerializer(secret_key, salt='flaskcbv-csrf-token')
 
 class FormMixin(object):
+    """Mixin that adds form handling and CSRF protection to a view.
+
+    Attributes:
+        form_class: The ``Form`` subclass to instantiate.
+        form_success_url (str): Redirect target after a valid submission.
+        form_unsuccess_url (str): Redirect target after an invalid submission.
+    """
+
     form_class = None  # Form class
     form_success_url = None
     form_unsuccess_url = None
@@ -35,6 +54,17 @@ class FormMixin(object):
         return kwargs
 
     def get_form(self, form_class=None, instance=None, **kwargs):
+        """Instantiate and return the form for the current request.
+
+        Args:
+            form_class: Override the class-level ``form_class``.
+            instance: View instance to pass as ``view=`` to the form.
+                Defaults to ``self``.
+            **kwargs: Extra keyword arguments forwarded to the form constructor.
+
+        Returns:
+            Form: A form instance populated with ``request.form`` data.
+        """
         if instance is None:
             instance = self
         if form_class is None:
@@ -59,6 +89,17 @@ class FormMixin(object):
 
     ## Check CSRF Token by session and form values:
     def csrf_check_token(self, form):
+        """Validate the CSRF token from the submitted form against the session.
+
+        Pops ``csrf_token`` from the session after reading it so the token
+        can only be used once per form submission.
+
+        Args:
+            form (Form): The submitted form containing ``csrf_token`` field.
+
+        Raises:
+            CSRFError: If the token is missing, expired, or does not match.
+        """
         field_name = 'csrf_token'
         time_limit = 3600
         token_s = self.session.pop(field_name, None)
@@ -79,6 +120,19 @@ class FormMixin(object):
 
     ## Generate CSRF Token and store it into session and context(if defined):
     def csrf_gen_token(self, context=None):
+        """Generate a signed CSRF token and store it in the session.
+
+        Idempotent within a single session: calling this method twice
+        returns the same token.  The raw session value is a SHA-1 hex
+        digest; the returned value is a URL-safe signed string.
+
+        Args:
+            context (dict, optional): If provided, the signed token is
+                also written to ``context['csrf_token']``.
+
+        Returns:
+            str: Signed, URL-safe CSRF token ready for embedding in a form.
+        """
         field_name = 'csrf_token'
         if field_name not in self.session:
             self.session[field_name] = hashlib.sha1(os.urandom(64)).hexdigest()
@@ -92,6 +146,15 @@ class FormMixin(object):
 
 
 class FormViewMixin(FormMixin):
+    """TemplateView mixin that wires form handling into GET/POST automatically.
+
+    On GET: adds the form instance and CSRF token to the template context.
+    On POST: validates the form and calls ``form_valid()`` or ``form_invalid()``.
+
+    Attributes:
+        csrf_check (bool): Enable CSRF validation on POST. Default True.
+    """
+
     csrf_check = True
 
     def get_context_data(self, *args, **kwargs):

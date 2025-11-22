@@ -6,6 +6,16 @@ except: settings = None
 
 
 class Response(object):
+    """Wraps the data to be returned to the client.
+
+    Accepts plain strings, callables, or generators.  Callables are
+    invoked at render time; generators are streamed via
+    ``flask.stream_with_context``.
+
+    Args:
+        data (str | callable | generator): Response body.
+    """
+
     def __init__(self, data="", **kwargs):
         self.data = data
         self.custom_headers = {}
@@ -20,6 +30,12 @@ class Response(object):
         return make_response(self.data)
 
     def add_header(self, name, value):
+        """Queue a custom header to include in the response.
+
+        Args:
+            name (str): Header name.
+            value (str): Header value.
+        """
         self.custom_headers[name] = value
     
 
@@ -33,6 +49,18 @@ class Response(object):
 
 
     def render(self, headers={}):
+        """Build and return the final ``flask.Response`` object.
+
+        Merges ``DEFAULT_HEADERS`` from settings, custom headers added
+        via ``add_header()``, and any headers passed as *headers*.
+
+        Args:
+            headers (dict): Additional headers, typically from
+                ``View.get_headers()``.
+
+        Returns:
+            flask.Response: The HTTP response ready for Flask.
+        """
         r = self._render()
         headers.update(self.get_headers())
         for header in headers:
@@ -43,6 +71,13 @@ class Response(object):
 
 
 class ResponseRedirect(Response):
+    """Response that issues an HTTP redirect.
+
+    Args:
+        url (str): Redirect target URL.
+        code (int): HTTP status code. Defaults to 302.
+    """
+
     def __init__(self, url, code=302, **kwargs):
         self.url = url
         self.code = code
