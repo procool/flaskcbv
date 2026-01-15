@@ -1,6 +1,6 @@
 # FlaskCBV — Справочник по API
 
-> Актуальная английская версия: [docs/api.md](api.md)
+> Английская версия: [docs/api.md](api.md)
 
 ---
 
@@ -11,22 +11,6 @@
 | Python    | >= 3.8  |
 | Flask     | >= 2.0  |
 | Werkzeug  | >= 2.1  |
-
----
-
-## Настройки (`FLASK_SETTINGS_MODULE`)
-
-Параметры задаются в модуле настроек проекта; имя модуля указывается
-в переменной окружения `FLASK_SETTINGS_MODULE`.
-
-| Переменная        | Описание |
-|-------------------|----------|
-| `APPLICATIONS`    | Кортеж путей к директориям приложений — по ним строится список мест поиска шаблонов. |
-| `DEFAULT_HEADERS` | Словарь заголовков, добавляемых к каждому ответу клиенту. |
-| `FLASKCONFIG`     | Имя модуля с конфигурацией Flask (путь от точки запуска, например `apps/flaskconfig`). **Важно:** Flask-приложение обязано задавать `SECRET_KEY` в конфигурации. Без него CSRF-защита (`FormViewMixin`) выбросит `ConfigurationError`. |
-| `TEMPLATE_PATH`   | Кортеж директорий для поиска шаблонов. По умолчанию шаблоны ищутся в каталоге `templates` от корня проекта. |
-| `STATIC_PATH`     | Директория, в которой сервер ищет статические файлы. |
-| `STATIC_URL`      | URL-префикс для статики (по умолчанию `'/static'`). |
 
 ---
 
@@ -113,45 +97,6 @@ namespases = make_urls(
 )
 ```
 
-По именам `[namespace, name]` можно получить полный URL endpoint'а для использования
-в шаблонах через `url_for()`.
-
----
-
-## flaskcbv.exceptions — Исключения
-
-| Класс                | Описание |
-|----------------------|----------|
-| `FlaskCBVError`      | Базовый класс всех исключений фреймворка (наследует `Exception`). |
-| `ConfigurationError` | Ошибка конфигурации (например, отсутствует `SECRET_KEY`). |
-| `CSRFError`          | Ошибка CSRF-проверки (неверный, просроченный или отсутствующий токен). |
-
----
-
-## flaskcbv.conf — Настройки
-
-Настройки загружаются из модуля, имя которого задано в переменной окружения
-`FLASK_SETTINGS_MODULE`. Незаданные значения берутся из `DefaultSettings`.
-
-```python
-from flaskcbv.conf import settings
-
-print(settings.STATIC_URL)   ## '/static'
-```
-
-### `class Settings`
-
-Читает имя модуля настроек из переменной окружения, создаёт экземпляр
-с соответствующими атрибутами (все имена — в верхнем регистре).
-Незаданные атрибуты дополняются значениями по умолчанию из `DefaultSettings`.
-
-Предпочтительный способ использования — готовый singleton `settings`:
-
-```python
-from flaskcbv.conf import settings
-print(settings.TEMPLATE_PATH)
-```
-
 ---
 
 ## flaskcbv.view — Представления
@@ -181,7 +126,7 @@ class MyView(View):
 | `decorators` | Декораторы уровня представления, применяемые в `as_view()`. |
 | `request` | Текущий объект `flask.Request`. |
 | `session` | Текущий объект `flask.session`. |
-| `prepare(*args, **kwargs)` | Точка входа, вызываемая Flask при каждом запросе. Запускает `dispatch()`, получает от него `Response` и вызывает `render()`. |
+| `prepare(*args, **kwargs)` | Точка входа, вызываемая Flask при каждом запросе. |
 | `dispatch(request, *args, **kwargs)` | Определяет HTTP-метод запроса и вызывает соответствующий обработчик (`get`, `post`, …). Возвращает экземпляр `Response`. |
 | `get_headers(**kwargs)` | Переопределите для добавления кастомных заголовков ответа. |
 | `get_current_url()` | Возвращает URL-путь данного представления. |
@@ -285,10 +230,7 @@ value = self.get_argument_smart('user_id', as_get=True, as_post=True)
 
 Бросает `KeyError`, если ключ не найден ни в одном из включённых источников.
 
-**Метод `get_argument_smart(key, as_get, as_post, as_session, as_cookie)`:**
-
 Источники проверяются в порядке: GET → POST → cookie → session.
-Побеждает первый источник, содержащий ключ.
 
 ---
 
@@ -317,7 +259,7 @@ class MyAPI(JSONMixin, View):
     "errno": 0,
     "error": "Ok",
     "details": "",
-    ...контекст представления...
+    "...": "ключи контекста представления"
 }
 ```
 
@@ -389,11 +331,6 @@ return Response(lambda: generate_data())   ## callable
 return Response(iter_chunks())              ## потоковая передача
 ```
 
-Конструктор принимает данные для отправки клиенту:
-- строка — передаётся напрямую;
-- callable — вызывается при `render()`;
-- итератор — передаётся через `flask.stream_with_context` (удобно для больших ответов).
-
 | Метод | Описание |
 |-------|----------|
 | `add_header(name, value)` | Добавить кастомный заголовок в ответ. |
@@ -409,8 +346,44 @@ from flaskcbv.response import ResponseRedirect
 return ResponseRedirect('/login/', code=302)
 ```
 
-Наследует `Response`. Конструктор принимает URL редиректа и код статуса (по умолчанию 302).
-`render()` возвращает `flask.redirect`.
+---
+
+## flaskcbv.exceptions — Исключения
+
+| Класс | Описание |
+|-------|----------|
+| `FlaskCBVError` | Базовый класс всех исключений фреймворка. |
+| `ConfigurationError` | Ошибка конфигурации (например, отсутствует `SECRET_KEY`). |
+| `CSRFError` | Ошибка CSRF-проверки (неверный, просроченный или отсутствующий токен). |
+
+---
+
+## flaskcbv.conf — Настройки
+
+Настройки загружаются из модуля, имя которого задано в переменной окружения
+`FLASK_SETTINGS_MODULE`. Незаданные значения берутся из `DefaultSettings`.
+
+```python
+from flaskcbv.conf import settings
+
+print(settings.STATIC_URL)   ## '/static'
+```
+
+**Значения по умолчанию** (`flaskcbv.conf.defaults.DefaultSettings`):
+
+| Настройка | По умолчанию |
+|-----------|-------------|
+| `TEMPLATE_PATH` | `'templates'` |
+| `STATIC_PATH` | `'static'` |
+| `STATIC_URL` | `'/static'` |
+| `DEFAULT_HEADERS` | `{}` |
+
+**Обязательные настройки в вашем модуле settings:**
+
+| Настройка | Описание |
+|-----------|----------|
+| `APPLICATIONS` | Кортеж путей к директориям приложений — по ним строится список мест поиска шаблонов. |
+| `FLASKCONFIG` | Имя модуля с конфигурацией Flask (необязательно). **Важно:** Flask-приложение обязано задавать `SECRET_KEY`. Без него CSRF-защита выбросит `ConfigurationError`. |
 
 ---
 
@@ -421,16 +394,16 @@ return ResponseRedirect('/login/', code=302)
 1. Читает имя модуля настроек из переменной окружения `FLASK_SETTINGS_MODULE`.
 2. Через `flaskcbv.conf.Settings` создаёт singleton `settings` с параметрами проекта
    в виде атрибутов (все имена — в верхнем регистре).
-3. Создаёт экземпляр Flask (`flaskcbv.core.base.Flask`, наследник `flask.Flask`),
+3. Создаёт экземпляр `flaskcbv.core.base.Flask` (наследник `flask.Flask`),
    настраивает пути к шаблонам и инициализирует `jinja_loader`.
 4. Обрабатывает `urls.py`: для каждого URL вызывает `add_url_rule`.
 5. Находит и регистрирует шаблонные теги через `flaskcbv.templates.register_tags`.
 
 ### Обработка запроса
 
-1. При получении запроса вызывается `prepare()` нужного класса представления.
-2. `prepare()` вызывает `dispatch()`, который определяет метод запроса (GET, POST, …)
-   и вызывает соответствующий обработчик.
+1. Flask вызывает `prepare()` у нужного класса представления.
+2. `prepare()` вызывает `dispatch()`, который определяет HTTP-метод и делегирует
+   соответствующему обработчику (`get`, `post`, …).
 3. Обработчик возвращает экземпляр `flaskcbv.Response`.
 4. `prepare()` вызывает `render()` у полученного объекта и отдаёт результат Flask.
 
@@ -444,22 +417,20 @@ return ResponseRedirect('/login/', code=302)
 pip install -e ".[dev]"
 ```
 
-Запуск всех тестов (из корня проекта):
+Запуск полного набора тестов из корня проекта:
 
 ```bash
 pytest
 ```
 
-Запуск с подробным выводом:
+Полезные опции:
 
 ```bash
-pytest -v
-```
-
-Запуск отдельного файла:
-
-```bash
-pytest tests/test_forms.py
+pytest -v                                          ## подробный вывод
+pytest -x                                          ## остановиться на первом падении
+pytest tests/test_forms.py                         ## один файл
+pytest tests/test_views.py::TestViewHTTPMethods    ## один класс
+pytest -k "csrf"                                   ## по ключевому слову
 ```
 
 Покрытие кода:
@@ -467,35 +438,32 @@ pytest tests/test_forms.py
 ```bash
 coverage run -m pytest
 coverage report
+coverage html && open htmlcov/index.html
 ```
 
-Подробное описание тестовой инфраструктуры и инструкции по написанию
-новых тестов — см. раздел «Running Tests» в [README](../README.md)
-или [русскоязычный перевод](readme_rus.md).
+Полное описание тестовой инфраструктуры — в разделе «Running Tests»
+в [README.md](../README.md) или в [русскоязычном переводе](readme_rus.md).
 
 ---
 
 ## Миграция с версии 1.x на 2.x
 
-В версии 2.0.0 изменён способ инициализации фреймворка.
-Движок больше **не создаётся автоматически** при импорте `flaskcbv.core`.
+В версии 2.0.0 движок больше **не создаётся автоматически** при импорте `flaskcbv.core`.
 
-Необходимые изменения в `project.py` каждого существующего проекта:
+Обновите `project.py` в каждом существующем проекте:
 
 ```python
 ## БЫЛО (flaskcbv 1.x):
 from flaskcbv.core import engine
 application = engine.app
-application.secret_key = 'your-secret-key'
 
 ## СТАЛО (flaskcbv 2.x):
 from flaskcbv.core import create_engine
 engine = create_engine()
 application = engine.app
-application.secret_key = 'your-secret-key'
 ```
 
-Дополнительно (рекомендуется) — замените хардкод параметров запуска в `start.py`:
+Рекомендуемое обновление `start.py` — замените хардкод параметров запуска:
 
 ```python
 ## БЫЛО:

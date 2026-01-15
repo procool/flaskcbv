@@ -1,5 +1,19 @@
 # FlaskCBV API Reference
 
+> Русская версия: [docs/api_rus.md](api_rus.md)
+
+---
+
+## Requirements
+
+| Component | Version |
+|-----------|---------|
+| Python    | >= 3.8  |
+| Flask     | >= 2.0  |
+| Werkzeug  | >= 2.1  |
+
+---
+
 ## flaskcbv.core — Engine initialisation
 
 ### `create_engine(**kwargs)`
@@ -215,6 +229,8 @@ value = self.get_argument_smart('user_id', as_get=True, as_post=True)
 
 Raises `KeyError` if the key is absent from all enabled sources.
 
+Sources are checked in order: GET → POST → cookie → session.
+
 ---
 
 ### `class JSONMixin`
@@ -234,6 +250,27 @@ class MyAPI(JSONMixin, View):
 | `json_response_include()` | Return a list of context keys to include (default: all). |
 | `json_response_exclude()` | Return a list of context keys to exclude. Default: `['request']`. |
 | `get_json_indent()` | Override to pretty-print JSON. Default: `None`. |
+
+Default response structure:
+
+```json
+{
+    "errno": 0,
+    "error": "Ok",
+    "details": "",
+    "...": "view context keys"
+}
+```
+
+On `get_context_data()` failure:
+
+```json
+{
+    "errno": -1,
+    "error": "Failed",
+    "details": "error message"
+}
+```
 
 ---
 
@@ -346,3 +383,103 @@ print(settings.STATIC_URL)   # '/static'
 |---------|-------------|
 | `APPLICATIONS` | Tuple of application directory paths for template discovery. |
 | `FLASKCONFIG` | Module name containing Flask config variables (optional). |
+
+---
+
+## How the framework works
+
+### Startup
+
+1. Reads the settings module name from the `FLASK_SETTINGS_MODULE` environment variable.
+2. Creates the `settings` singleton via `flaskcbv.conf.Settings` — all attribute names
+   are uppercased.
+3. Instantiates `flaskcbv.core.base.Flask` (a subclass of `flask.Flask`), configures
+   template search paths, and initialises `jinja_loader`.
+4. Processes `urls.py`: calls `add_url_rule` for every registered URL.
+5. Discovers and registers template tags via `flaskcbv.templates.register_tags`.
+
+### Request handling
+
+1. Flask calls `prepare()` on the matched view class.
+2. `prepare()` calls `dispatch()`, which inspects the HTTP method and delegates
+   to the corresponding handler (`get`, `post`, …).
+3. The handler returns a `flaskcbv.Response` instance.
+4. `prepare()` calls `render()` on the response and returns the result to Flask.
+
+---
+
+## Running tests
+
+Install development dependencies:
+
+```bash
+pip install -e ".[dev]"
+```
+
+Run the full test suite from the project root:
+
+```bash
+pytest
+```
+
+Useful options:
+
+```bash
+pytest -v                                   # verbose output
+pytest -x                                   # stop on first failure
+pytest tests/test_forms.py                  # single file
+pytest tests/test_views.py::TestViewHTTPMethods   # single class
+pytest -k "csrf"                            # keyword filter
+```
+
+Coverage report:
+
+```bash
+coverage run -m pytest
+coverage report
+coverage html && open htmlcov/index.html
+```
+
+See the [Russian docs](readme_rus.md) or the "Running Tests" section in
+[README.md](../README.md) for a full description of the test infrastructure.
+
+---
+
+## Migrating from 1.x to 2.x
+
+In v2.0.0 the engine is no longer created automatically on import.
+
+Update `project.py` in every existing project:
+
+```python
+## Before (flaskcbv 1.x):
+from flaskcbv.core import engine
+application = engine.app
+
+## After (flaskcbv 2.x):
+from flaskcbv.core import create_engine
+engine = create_engine()
+application = engine.app
+```
+
+Recommended update to `start.py` — replace hard-coded run parameters:
+
+```python
+## Before:
+application.run(debug=True, host='0.0.0.0', port=5555)
+
+## After:
+import os
+debug = os.environ.get('FLASK_DEBUG', 'false').lower() == 'true'
+host  = os.environ.get('FLASK_HOST', '127.0.0.1')
+port  = int(os.environ.get('FLASK_PORT', '5000'))
+application.run(debug=debug, host=host, port=port)
+```
+
+Environment variables for runtime control:
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `FLASK_DEBUG` | `'false'` | Enable debug mode (`'true'` / `'false'`). |
+| `FLASK_HOST` | `'127.0.0.1'` | Bind address. |
+| `FLASK_PORT` | `'5000'` | Port number. |
