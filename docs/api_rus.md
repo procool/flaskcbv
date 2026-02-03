@@ -450,6 +450,15 @@ coverage html && open htmlcov/index.html
 
 В версии 2.0.0 движок больше **не создаётся автоматически** при импорте `flaskcbv.core`.
 
+**Что нужно обновить в каждом проекте:**
+
+| Файл | Действие |
+|------|----------|
+| `apps/project.py` | **Обязательно.** Заменить `from flaskcbv.core import engine` на вызов `create_engine()` (см. ниже). |
+| `apps/flaskconfig.py` | **Обязательно**, если используется `FormViewMixin`. Убедиться, что задан `SECRET_KEY`. |
+| `apps/start.py` | Рекомендуется. Убрать хардкод `debug=True, host='0.0.0.0'`, читать из переменных окружения. |
+| `setup.py` / `requirements.txt` | Снять пин `Werkzeug==2.0.0`, указать `Werkzeug>=2.1`. |
+
 Обновите `project.py` в каждом существующем проекте:
 
 ```python

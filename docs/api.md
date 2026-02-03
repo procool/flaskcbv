@@ -449,6 +449,15 @@ See the [Russian docs](readme_rus.md) or the "Running Tests" section in
 
 In v2.0.0 the engine is no longer created automatically on import.
 
+**Files to update in every existing project:**
+
+| File | Action |
+|------|--------|
+| `apps/project.py` | **Required.** Replace the `engine` import with a `create_engine()` call (see below). |
+| `apps/flaskconfig.py` | **Required** if `FormViewMixin` is used. Make sure `SECRET_KEY` is set. |
+| `apps/start.py` | Recommended. Remove hard-coded `debug=True, host='0.0.0.0'`; read from env vars instead. |
+| `setup.py` / `requirements.txt` | Remove `Werkzeug==2.0.0` pin; use `Werkzeug>=2.1`. |
+
 Update `project.py` in every existing project:
 
 ```python

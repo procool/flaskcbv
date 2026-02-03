@@ -12,6 +12,10 @@
 | 2.x      | 3.8 – 3.12  | 2.0 – 3.x | ≥ 2.1     |
 | 1.x      | 3.6 – 3.8   | 1.x       | 2.0.0     |
 
+Upgrading from 1.x? See the [migration guide](docs/api.md#migrating-from-1x-to-2x).  
+Four files need updating: `apps/project.py` (required), `apps/flaskconfig.py` (required if using forms),
+`apps/start.py` (recommended), `Werkzeug` version pin (required).
+
 ## Introduction
 
 FlaskCBV is Alternative Framework for working with flask with the class Based Views approach (CBV)
