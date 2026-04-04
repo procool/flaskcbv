@@ -37,7 +37,9 @@ class View(object):
         self.url = None
         self.current_url = None
         if options is not None:
-            self.options = options
+            self.options = dict(options)
+        else:
+            self.options = dict(self.__class__.options)
 
         if not 'methods' in self.options:
             self.options['methods'] = []
@@ -79,7 +81,7 @@ class View(object):
         view.__doc__ = cls.__doc__
         view.__module__ = cls.__module__
         view.AVALIBLE_METHODS = cls.AVALIBLE_METHODS
-        view.options = cls.options
+        view.options = dict(cls.options)
         return view
 
 

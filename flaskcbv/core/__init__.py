@@ -1,4 +1,5 @@
 import os, sys
+import importlib
 import logging
 
 from flaskcbv.core.base import get_flask
@@ -48,7 +49,8 @@ class CBVCore(object):
         """
         self.views = []
         try:
-            from urls import namespases
+            urls_module = importlib.import_module('urls')
+            namespases = urls_module.namespases
         except Exception as err:
             raise Exception("%s: You should create urls.py in your project directory!" % err)
 
@@ -57,7 +59,9 @@ class CBVCore(object):
             url[0].obj.current_url = url[2]
             url[0].obj.url = url[0] ## backref to view.url
             self.views.append(url[0].obj)
-            self.app.add_url_rule(url[1], url[2], url[3], **url[4])
+            opts = dict(url[4])
+            opts['methods'] = url[0].obj.AVALIBLE_METHODS
+            self.app.add_url_rule(url[1], url[2], url[3], **opts)
 
 
 def create_engine(**kwargs):

@@ -65,8 +65,8 @@ def make_urls(*namespases):
     for url in namespases:
         if isinstance(url.obj, (list, tuple)):
             for url_ in url.obj:
-                url_[0].url = '%s%s' % (url.url, url_[0].url)
-                url_[1] = url_[0].url
+                full_path = '%s%s' % (url.url, url_[0].url)
+                url_[1] = full_path
             urls += list(url.obj)
             continue
          
