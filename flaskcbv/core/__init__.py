@@ -60,7 +60,7 @@ class CBVCore(object):
             url[0].obj.url = url[0] ## backref to view.url
             self.views.append(url[0].obj)
             opts = dict(url[4])
-            opts['methods'] = url[0].obj.AVALIBLE_METHODS
+            opts['methods'] = url[0].obj.AVAILABLE_METHODS
             self.app.add_url_rule(url[1], url[2], url[3], **opts)
 
 

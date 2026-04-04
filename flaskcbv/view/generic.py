@@ -22,14 +22,26 @@ class View(object):
     Attributes:
         options (dict): Extra keyword arguments forwarded to
             ``app.add_url_rule()``, e.g. ``{'methods': ['GET']}``.
-        AVALIBLE_METHODS (list): HTTP methods this view may handle.
+        AVAILABLE_METHODS (list): HTTP methods this view may handle.
             Methods not in this list result in a 405 response.
+        AVALIBLE_METHODS (list): Deprecated alias for ``AVAILABLE_METHODS``.
+            Both attributes are kept in sync automatically.
         decorators (list): View-level decorators applied by ``as_view()``.
     """
 
     options = {}
-    AVALIBLE_METHODS = ["GET", "POST", "OPTIONS", "HEAD",]
+    AVAILABLE_METHODS = ["GET", "POST", "OPTIONS", "HEAD"]
+    AVALIBLE_METHODS = AVAILABLE_METHODS  ## deprecated alias; use AVAILABLE_METHODS
     decorators = []
+
+    def __init_subclass__(cls, **kwargs):
+        super().__init_subclass__(**kwargs)
+        ## Keep AVAILABLE_METHODS and AVALIBLE_METHODS (deprecated) in sync.
+        ## Whichever one the subclass defines, the other is set automatically.
+        if 'AVAILABLE_METHODS' in cls.__dict__ and 'AVALIBLE_METHODS' not in cls.__dict__:
+            cls.AVALIBLE_METHODS = cls.AVAILABLE_METHODS
+        elif 'AVALIBLE_METHODS' in cls.__dict__ and 'AVAILABLE_METHODS' not in cls.__dict__:
+            cls.AVAILABLE_METHODS = cls.AVALIBLE_METHODS
 
     def __init__(self, options=None, **kwargs):
 
@@ -80,7 +92,8 @@ class View(object):
         view.__name__ = name
         view.__doc__ = cls.__doc__
         view.__module__ = cls.__module__
-        view.AVALIBLE_METHODS = cls.AVALIBLE_METHODS
+        view.AVAILABLE_METHODS = cls.AVAILABLE_METHODS
+        view.AVALIBLE_METHODS = cls.AVALIBLE_METHODS  ## deprecated alias
         view.options = dict(cls.options)
         return view
 
