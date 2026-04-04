@@ -48,7 +48,7 @@ class Response(object):
         
 
 
-    def render(self, headers={}):
+    def render(self, headers=None):
         """Build and return the final ``flask.Response`` object.
 
         Merges ``DEFAULT_HEADERS`` from settings, custom headers added
@@ -61,6 +61,8 @@ class Response(object):
         Returns:
             flask.Response: The HTTP response ready for Flask.
         """
+        if headers is None:
+            headers = {}
         r = self._render()
         headers.update(self.get_headers())
         for header in headers:

@@ -21,15 +21,15 @@ class Form(object):
         view: The view instance that created this form.
     """
 
-    def __init__(self, data={}, view=None, **kwargs):
-        self.raw_data = data
+    def __init__(self, data=None, view=None, **kwargs):
+        self.raw_data = data if data is not None else {}
         self.view = view
         self.cleaned_data = {}
         self.errors = {}
 
         ## Create simple dict from raw data(maybe it's ImutableMultiDict)
         self.data = {}
-        for key in data:
+        for key in self.raw_data:
             self.data[key] = self.raw_data[key]
 
 
@@ -58,6 +58,9 @@ class Form(object):
         ``self.errors`` and are excluded from ``cleaned_data``.  Fields
         without a corresponding ``clean_`` method are copied as-is.
         """
+
+        self.errors = {}
+        self.cleaned_data = {}
 
         clean_defs = []
         if hasattr(self, 'get_clean_defs'):
