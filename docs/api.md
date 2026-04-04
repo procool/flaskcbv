@@ -434,6 +434,8 @@ print(settings.STATIC_URL)   # '/static'
 
 ## Running tests
 
+> Full test documentation: **[docs/testing.md](testing.md)**
+
 Install development dependencies:
 
 ```bash

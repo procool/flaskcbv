@@ -168,6 +168,8 @@ regards, procool@
 
 ## Running Tests
 
+> Full test documentation — what each test file covers, fixture reference, and coverage breakdown — is in **[docs/testing.md](docs/testing.md)**.
+
 ### Prerequisites
 
 Install the framework with development dependencies:

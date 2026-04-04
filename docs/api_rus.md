@@ -435,6 +435,8 @@ print(settings.STATIC_URL)   ## '/static'
 
 ## Тестирование
 
+> Подробная документация по тестам: **[docs/testing_rus.md](testing_rus.md)**
+
 Установка зависимостей для разработки:
 
 ```bash
