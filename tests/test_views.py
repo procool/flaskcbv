@@ -44,7 +44,73 @@ class TestViewAsView:
 
     def test_as_view_inherits_available_methods(self):
         fn = View.as_view('methods_view')
+        assert fn.AVAILABLE_METHODS == View.AVAILABLE_METHODS
         assert fn.AVALIBLE_METHODS == View.AVALIBLE_METHODS
+
+
+class TestViewOptionsIsolation:
+    def test_instances_do_not_share_options(self):
+        ## Class-level options dict must not be mutated by instance __init__
+        class ViewA(View):
+            pass
+
+        class ViewB(View):
+            AVAILABLE_METHODS = ['POST']
+
+        a = ViewA.__new__(ViewA)
+        b = ViewB.__new__(ViewB)
+        ## options class attr must still be empty after instantiation
+        assert ViewA.options == {}
+        assert ViewB.options == {}
+
+    def test_instance_options_are_independent(self, req_ctx):
+        class ViewA(View):
+            pass
+
+        class ViewB(View):
+            AVAILABLE_METHODS = ['POST']
+
+        a = ViewA()
+        b = ViewB()
+        assert a.options is not b.options
+        assert 'GET' in a.options['methods']
+        assert b.options['methods'] == ['POST']
+
+    def test_class_options_not_mutated_after_init(self, req_ctx):
+        class ViewC(View):
+            options = {'strict_slashes': False}
+
+        ViewC()
+        ## class-level options must not get 'methods' injected into it
+        assert 'methods' not in ViewC.options
+
+
+class TestViewMethodsAlias:
+    def test_available_methods_synced_from_available(self):
+        ## subclass defines new name -> old name auto-set
+        class ViewNew(View):
+            AVAILABLE_METHODS = ['GET']
+
+        assert ViewNew.AVALIBLE_METHODS == ['GET']
+
+    def test_available_methods_synced_from_deprecated(self):
+        ## subclass defines old (deprecated) name -> new name auto-set
+        class ViewOld(View):
+            AVALIBLE_METHODS = ['POST']
+
+        assert ViewOld.AVAILABLE_METHODS == ['POST']
+
+    def test_base_aliases_are_same_object(self):
+        assert View.AVAILABLE_METHODS is View.AVALIBLE_METHODS
+
+    def test_both_defined_not_overwritten(self):
+        ## if subclass defines both, neither is overwritten
+        class ViewBoth(View):
+            AVAILABLE_METHODS = ['GET']
+            AVALIBLE_METHODS = ['POST']
+
+        assert ViewBoth.AVAILABLE_METHODS == ['GET']
+        assert ViewBoth.AVALIBLE_METHODS == ['POST']
 
 
 class TestViewGetAllUrls:
