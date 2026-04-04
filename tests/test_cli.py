@@ -3,6 +3,11 @@ import string
 import pytest
 from flaskcbv.scripts.common import CommonMixin
 from flaskcbv.scripts.commands.initproject import cmdInitProject
+from flaskcbv.scripts.cliargs import CliArgs
+
+
+class _CliInitProject(cmdInitProject, CliArgs):
+    pass
 
 
 class TestTokenGen:
@@ -49,18 +54,12 @@ class TestGenToken:
 
 class TestGetCliCommands:
     def test_initproject_registered(self):
-        class Dummy(cmdInitProject):
-            def get_cli_commands(self):
-                return {}
-        d = Dummy()
+        d = _CliInitProject()
         cmds = d.get_cli_commands()
         assert 'initproject' in cmds
 
     def test_initproject_is_callable(self):
-        class Dummy(cmdInitProject):
-            def get_cli_commands(self):
-                return {}
-        d = Dummy()
+        d = _CliInitProject()
         cmds = d.get_cli_commands()
         assert callable(cmds['initproject'])
 
