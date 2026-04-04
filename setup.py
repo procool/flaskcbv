@@ -54,6 +54,7 @@ setup(
         'setuptools',
         'Flask>=2.0',
         'Werkzeug>=2.1',
+        'itsdangerous>=2.0',
     ],
 
     extras_require={
@@ -61,6 +62,7 @@ setup(
             'pytest>=7.0',
             'pytest-flask',
             'coverage',
+            'ruff>=0.1.0',
         ],
     },
 
