@@ -324,12 +324,33 @@ class LoginForm(Form):
 
 ### `class Response`
 
-```python
-from flaskcbv.response import Response
+Принимает тело ответа трёх видов:
 
+**Строка** — самый частый случай:
+```python
 return Response('Hello, world!')
-return Response(lambda: generate_data())   ## callable
-return Response(iter_chunks())              ## потоковая передача
+return Response(json.dumps(data))
+```
+
+**Callable (функция или лямбда)** — вызывается один раз в момент рендера.
+Удобно откладывать тяжёлые вычисления до конца обработки запроса:
+```python
+def get(self, request, *args, **kwargs):
+    return Response(lambda: build_report())
+```
+
+> **Важно:** передавайте сам callable, а не результат его вызова.
+> `Response(fn)` — правильно; `Response(fn())` — передаётся возвращаемое значение напрямую.
+
+**Generator** — потоковая передача через `flask.stream_with_context`.
+Передавайте **объект генератора** (то есть сначала вызовите функцию-генератор):
+```python
+def generate(n):
+    for i in range(n):
+        yield 'chunk-%d\n' % i
+
+return Response(generate(100))   # правильно: объект генератора
+# return Response(generate)      # неправильно: передаётся функция, а не генератор
 ```
 
 | Метод | Описание |

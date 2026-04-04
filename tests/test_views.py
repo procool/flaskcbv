@@ -1,5 +1,7 @@
+import unittest.mock as mock
 import pytest
 from flaskcbv.view import View
+from flaskcbv.view.generic import TemplateIsAjaxView
 from flaskcbv.response import Response
 
 
@@ -111,6 +113,46 @@ class TestViewMethodsAlias:
 
         assert ViewBoth.AVAILABLE_METHODS == ['GET']
         assert ViewBoth.AVALIBLE_METHODS == ['POST']
+
+
+def _make_ajax_view(template, is_ajax):
+    ## TemplateIsAjaxView needs self.request; mock it to avoid Werkzeug
+    ## version issues (is_ajax was removed in Werkzeug 2.1).
+    v = TemplateIsAjaxView.__new__(TemplateIsAjaxView)
+    v.template = template
+    v.request = mock.Mock(is_ajax=is_ajax)
+    return v
+
+
+class TestTemplateIsAjaxView:
+    def test_ajax_request_returns_ajax_template(self):
+        v = _make_ajax_view('index.html', is_ajax=True)
+        assert v.get_template_name() == 'index-ajax.html'
+
+    def test_non_ajax_request_returns_normal_template(self):
+        v = _make_ajax_view('index.html', is_ajax=False)
+        assert v.get_template_name() == 'index.html'
+
+    def test_explicit_is_ajax_true_overrides_request(self):
+        v = _make_ajax_view('page.html', is_ajax=False)
+        assert v.get_template_name(is_ajax=True) == 'page-ajax.html'
+
+    def test_explicit_is_ajax_false_returns_normal(self):
+        v = _make_ajax_view('page.html', is_ajax=False)
+        assert v.get_template_name(is_ajax=False) == 'page.html'
+
+    def test_ajax_template_with_extension(self):
+        v = _make_ajax_view('views/detail.tpl', is_ajax=True)
+        assert v.get_template_name() == 'views/detail-ajax.tpl'
+
+    def test_inverted_ajax_template_normal_request(self):
+        ## if the template itself is already '-ajax', non-ajax gets the base name
+        v = _make_ajax_view('index-ajax.html', is_ajax=False)
+        assert v.get_template_name() == 'index.html'
+
+    def test_inverted_ajax_template_ajax_request(self):
+        v = _make_ajax_view('index-ajax.html', is_ajax=True)
+        assert v.get_template_name() == 'index-ajax.html'
 
 
 class TestViewGetAllUrls:

@@ -26,8 +26,8 @@ class Response(object):
             gen_ = self.data()
         if gen_.__class__.__name__ == 'generator':
             return FlaskResponse(stream_with_context(gen_))
-            
-        return make_response(self.data)
+
+        return make_response(gen_)
 
     def add_header(self, name, value):
         """Queue a custom header to include in the response.

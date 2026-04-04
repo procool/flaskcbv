@@ -323,12 +323,33 @@ Extended Flask request. Used automatically by all views.
 
 ### `class Response`
 
-```python
-from flaskcbv.response import Response
+Accepts three types of body:
 
+**Plain string** — most common case:
+```python
 return Response('Hello, world!')
-return Response(lambda: generate_data())   # callable
-return Response(iter_chunks())              # streamed
+return Response(json.dumps(data))
+```
+
+**Callable (function or lambda)** — invoked once at render time.
+Useful to defer expensive computation until after the view returns:
+```python
+def get(self, request, *args, **kwargs):
+    return Response(lambda: build_report())
+```
+
+> **Note:** pass the callable itself, not its result.
+> `Response(fn)` — correct; `Response(fn())` — passes the return value directly.
+
+**Generator** — streamed via `flask.stream_with_context`.
+Pass the **generator object** (i.e. call the generator function first):
+```python
+def generate(n):
+    for i in range(n):
+        yield 'chunk-%d\n' % i
+
+return Response(generate(100))   # correct: generator object
+# return Response(generate)      # wrong: passes the function, not the generator
 ```
 
 | Method | Description |
