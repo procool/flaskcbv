@@ -3,10 +3,15 @@ import string
 import pytest
 from flaskcbv.scripts.common import CommonMixin
 from flaskcbv.scripts.commands.initproject import cmdInitProject
+from flaskcbv.scripts.commands.startapp import cmdStartApp
 from flaskcbv.scripts.cliargs import CliArgs
 
 
 class _CliInitProject(cmdInitProject, CliArgs):
+    pass
+
+
+class _CliStartApp(cmdStartApp, CliArgs):
     pass
 
 
@@ -62,6 +67,51 @@ class TestGetCliCommands:
         d = _CliInitProject()
         cmds = d.get_cli_commands()
         assert callable(cmds['initproject'])
+
+
+class TestStartApp:
+    def test_startapp_registered(self):
+        d = _CliStartApp()
+        assert 'startapp' in d.get_cli_commands()
+
+    def test_startapp_is_callable(self):
+        d = _CliStartApp()
+        assert callable(d.get_cli_commands()['startapp'])
+
+    def test_creates_expected_files(self, tmp_path, monkeypatch):
+        monkeypatch.chdir(tmp_path)
+        d = _CliStartApp()
+        d._startapp_name = 'blog'
+        d.get_cli_commands()['startapp']()
+
+        assert (tmp_path / 'apps' / 'blog' / '__init__.py').exists()
+        assert (tmp_path / 'apps' / 'blog' / 'views.py').exists()
+        assert (tmp_path / 'apps' / 'blog' / 'urls.py').exists()
+        assert (tmp_path / 'apps' / 'blog' / 'templates' / 'blog' / 'index.tpl').exists()
+
+    def test_views_contains_app_name(self, tmp_path, monkeypatch):
+        monkeypatch.chdir(tmp_path)
+        d = _CliStartApp()
+        d._startapp_name = 'news'
+        d.get_cli_commands()['startapp']()
+
+        content = (tmp_path / 'apps' / 'news' / 'views.py').read_text()
+        assert 'news' in content
+
+    def test_raises_without_name(self, tmp_path, monkeypatch):
+        monkeypatch.chdir(tmp_path)
+        d = _CliStartApp()
+        d._startapp_name = None
+        with pytest.raises(Exception, match='startapp'):
+            d.get_cli_commands()['startapp']()
+
+    def test_raises_if_dir_exists(self, tmp_path, monkeypatch):
+        monkeypatch.chdir(tmp_path)
+        (tmp_path / 'apps' / 'shop').mkdir(parents=True)
+        d = _CliStartApp()
+        d._startapp_name = 'shop'
+        with pytest.raises(Exception, match='already exists'):
+            d.get_cli_commands()['startapp']()
 
 
 class TestInitProject:
