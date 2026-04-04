@@ -3,6 +3,7 @@ import hashlib, hmac, os
 from itsdangerous import BadData, SignatureExpired, URLSafeTimedSerializer
 
 from flask import abort, current_app, redirect, url_for
+from flaskcbv.conf import settings
 from flaskcbv.response import Response
 from flaskcbv.exceptions import ConfigurationError, CSRFError
 from .generic import TemplateView
@@ -101,7 +102,7 @@ class FormMixin(object):
             CSRFError: If the token is missing, expired, or does not match.
         """
         field_name = 'csrf_token'
-        time_limit = 3600
+        time_limit = getattr(settings, 'CSRF_TOKEN_MAX_AGE', 3600)
         token_s = self.session.pop(field_name, None)
 
         if token_s is None or not field_name in form.data:
