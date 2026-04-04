@@ -120,7 +120,8 @@ class MyView(View):
 
 | Name | Description |
 |------|-------------|
-| `AVALIBLE_METHODS` | List of allowed HTTP methods. Others return 405. |
+| `AVAILABLE_METHODS` | List of allowed HTTP methods. Others return 405. Default: `["GET", "POST", "OPTIONS", "HEAD"]`. |
+| `AVALIBLE_METHODS` | **Deprecated.** Alias for `AVAILABLE_METHODS`, kept in sync automatically. Will be removed in a future major version. |
 | `options` | Extra kwargs forwarded to `add_url_rule()`. |
 | `decorators` | View-level decorators applied by `as_view()`. |
 | `request` | Current Flask request object. |

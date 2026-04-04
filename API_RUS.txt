@@ -1,5 +1,0 @@
-Документация перенесена в docs/api_rus.md
-
-Полный справочник по API на русском языке: docs/api_rus.md
-Русскоязычный README:                       docs/readme_rus.md
-Английская версия API:                      docs/api.md
