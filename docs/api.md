@@ -392,12 +392,14 @@ print(settings.STATIC_URL)   # '/static'
 
 **Default values** (`flaskcbv.conf.defaults.DefaultSettings`):
 
-| Setting | Default |
-|---------|---------|
-| `TEMPLATE_PATH` | `'templates'` |
-| `STATIC_PATH` | `'static'` |
-| `STATIC_URL` | `'/static'` |
-| `DEFAULT_HEADERS` | `{}` |
+| Setting | Default | Description |
+|---------|---------|-------------|
+| `TEMPLATE_PATH` | `'templates'` | Template directory path. |
+| `STATIC_PATH` | `'static'` | Static files directory. |
+| `STATIC_URL` | `'/static'` | URL prefix for static files. |
+| `DEFAULT_HEADERS` | `{}` | Headers added to every response. |
+| `CSRF_TOKEN_MAX_AGE` | `3600` | CSRF token lifetime in seconds. |
+| `TRUSTED_PROXIES` | `[]` | List of proxy IP addresses allowed to set `X-Real-IP`. If empty, `request.remote_address` always returns `REMOTE_ADDR`. |
 
 **Required in your settings module:**
 
