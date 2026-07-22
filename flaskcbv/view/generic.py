@@ -17,7 +17,7 @@ class View(object):
                 return Response('hello')
 
         # in urls.py:
-        namespases = make_urls(Url('/', MyView(), name='index'))
+        namespaces = make_urls(Url('/', MyView(), name='index'))
 
     Attributes:
         options (dict): Extra keyword arguments forwarded to

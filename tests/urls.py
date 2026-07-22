@@ -1,5 +1,5 @@
 ## URL configuration used by the test engine (CBVCore.make_urls does
-## a bare 'from urls import namespases', so this file must be on sys.path).
+## a bare 'from urls import namespaces', so this file must be on sys.path).
 
 from flaskcbv.url import Url, make_urls
 from flaskcbv.view import View
@@ -19,7 +19,7 @@ class _AboutView(View):
         return Response('about ok')
 
 
-namespases = make_urls(
+namespaces = make_urls(
     Url('/',      _IndexView(), name='index'),
     Url('/about', _AboutView(), name='about'),
 )

@@ -1,5 +1,56 @@
 # Changelog
 
+## [2.3.1] — 2026-07-22
+
+Консолидация двух разошедшихся линий разработки в одну. Объединяет
+переименование `namespaces` (линия 2.3.0) с накопленными фичами и тестами
+линии разработки (ранее помечалась как 2.2.0). Изменения вносились по диффам
+с прогоном тестов на каждом шаге, а не слиянием коммитов.
+
+### Совместимость / Breaking change (обратно совместимо)
+
+- **`flaskcbv/url/__init__.py`** — параметр `*namespases` в `make_urls()`
+  переименован в `*namespaces`; параметр `namespases` в `include()` — в
+  `namespaces`. Докстринги и примеры обновлены.
+- **`flaskcbv/core/__init__.py`** — `CBVCore.make_urls()` принимает как новое
+  имя переменной `namespaces` в `urls.py`, так и старое `namespases`
+  (с `DeprecationWarning`). Порядок поиска: `namespaces`, затем `namespases`;
+  если нет ни одного — `Exception`.
+- **`flaskcbv/view/generic.py`**, **`flaskcbv/protos/*/urls.py`**,
+  **`flaskcbv/scripts/commands/startapp.py`**, **`tests/*`**,
+  **`docs/api.md`**, **`docs/api_rus.md`** — все вхождения `namespases`
+  переименованы в `namespaces` (генератор `startapp` теперь создаёт скелет с
+  новым именем).
+
+  **Миграция:** переименовать `namespases = make_urls(...)` в
+  `namespaces = make_urls(...)` в `urls.py` каждого проекта. До переименования
+  фреймворк продолжает работать с `DeprecationWarning`.
+
+### Добавлено (из линии разработки)
+
+- **`TRUSTED_PROXIES`** — `X-Real-IP` доверяется только от перечисленных прокси.
+- **`CSRF_TOKEN_MAX_AGE`** — настраиваемый TTL CSRF-токена (`view/crud.py`).
+- **`startapp`** — CLI-команда генерации скелета приложения (views/urls/шаблон).
+- **`docs/testing.md`** — полный справочник по тест-инфраструктуре.
+
+### Исправлено
+
+- **`Response`** — исправлен баг с `callable`-данными в `_render()` (возвращается
+  результат вызова, а не сам объект-функция); `render(headers=None)` и
+  `Form(data=None)` вместо изменяемых значений по умолчанию.
+
+### Тесты
+
+- Полный набор: **125 тестов** (добавлены `test_core_make_urls.py` —
+  проверка dual-support `namespaces`/`namespases`, а также `test_jsonmixin`,
+  `test_response` и др. из линии разработки).
+
+### Версия
+
+- Версия повышена до `2.3.1`.
+
+---
+
 ## [2.2.0] — 2026-04-03
 
 ### Документация

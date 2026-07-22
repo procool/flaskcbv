@@ -20,7 +20,7 @@ _URLS_PY = '''\
 from flaskcbv.url import Url, make_urls
 from .views import IndexView
 
-namespases = make_urls(
+namespaces = make_urls(
     Url('/', IndexView(), name='index'),
 )
 '''

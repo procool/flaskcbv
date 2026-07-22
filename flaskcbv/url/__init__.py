@@ -40,14 +40,14 @@ class Url(object):
 
 
 
-def make_urls(*namespases):
+def make_urls(*namespaces):
     """Build the URL table consumed by ``CBVCore.make_urls()``.
 
     Each ``Url`` entry is expanded into a 5-element list:
     ``[Url, path, endpoint, callable, options]``.
 
     Args:
-        *namespases: ``Url`` instances to register.
+        *namespaces: ``Url`` instances to register.
 
     Returns:
         list: Flat list of URL entries ready for ``add_url_rule()``.
@@ -55,14 +55,14 @@ def make_urls(*namespases):
     Example:
         ::
 
-            namespases = make_urls(
+            namespaces = make_urls(
                 Url('/',      IndexView(), name='index'),
                 Url('/about', AboutView(), name='about'),
             )
     """
     urls = []
 
-    for url in namespases:
+    for url in namespaces:
         if isinstance(url.obj, (list, tuple)):
             for url_ in url.obj:
                 full_path = '%s%s' % (url.url, url_[0].url)
@@ -88,7 +88,7 @@ def make_urls(*namespases):
 
 
 
-def include(namespases, namespace=None, description=None, **kwargs):
+def include(namespaces, namespace=None, description=None, **kwargs):
     """Attach a namespace to an imported URL list.
 
     Use inside a parent ``urls.py`` to mount a sub-application under a
@@ -96,19 +96,19 @@ def include(namespases, namespace=None, description=None, **kwargs):
 
         from apps.blog import urls as blog_urls
 
-        namespases = make_urls(
-            Url('/blog', include(blog_urls.namespases, namespace='blog')),
+        namespaces = make_urls(
+            Url('/blog', include(blog_urls.namespaces, namespace='blog')),
         )
 
     Args:
-        namespases (list): URL table returned by ``make_urls()`` from another module.
+        namespaces (list): URL table returned by ``make_urls()`` from another module.
         namespace (str, optional): Namespace string to assign to every entry.
         description (str, optional): Human-readable label for the namespace.
 
     Returns:
         list: The same URL table with namespace set on each ``Url`` object.
     """
-    for ns in namespases:
+    for ns in namespaces:
         url = ns[0]
         url.namespace = namespace
         url.namespace_descr = description or namespace.upper() or ''
@@ -116,5 +116,5 @@ def include(namespases, namespace=None, description=None, **kwargs):
             ns[2] = url.endpoint
         except Exception:
             pass
-    return namespases
+    return namespaces
 

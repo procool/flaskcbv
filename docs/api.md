@@ -37,7 +37,7 @@ application.secret_key = 'your-secret-key'
 ### `class CBVCore`
 
 Central engine. Reads settings, creates the Flask app singleton, registers
-URL rules from `urls.namespases`, and loads template tags.
+URL rules from `urls.namespaces`, and loads template tags.
 
 | Attribute | Description |
 |-----------|-------------|
@@ -68,15 +68,15 @@ Raises `Exception` if `name` was not provided.
 
 ---
 
-### `make_urls(*namespases)`
+### `make_urls(*namespaces)`
 
 Build the URL table for `CBVCore`. Call this in your project's `urls.py`
-and assign the result to `namespases`.
+and assign the result to `namespaces`.
 
 ```python
 from flaskcbv.url import Url, make_urls
 
-namespases = make_urls(
+namespaces = make_urls(
     Url('/',      IndexView(), name='index'),
     Url('/about', AboutView(), name='about'),
 )
@@ -84,15 +84,15 @@ namespases = make_urls(
 
 ---
 
-### `include(namespases, namespace=None, description=None)`
+### `include(namespaces, namespace=None, description=None)`
 
 Mount a sub-application's URL list under a namespace.
 
 ```python
 from apps.blog import urls as blog_urls
 
-namespases = make_urls(
-    Url('/blog', include(blog_urls.namespases, namespace='blog')),
+namespaces = make_urls(
+    Url('/blog', include(blog_urls.namespaces, namespace='blog')),
 )
 ```
 

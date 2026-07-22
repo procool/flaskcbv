@@ -38,7 +38,7 @@ application.secret_key = 'your-secret-key'
 ### `class CBVCore`
 
 Центральный движок фреймворка. Читает настройки, создаёт singleton-экземпляр Flask,
-регистрирует URL-правила из `urls.namespases` и загружает шаблонные теги.
+регистрирует URL-правила из `urls.namespaces` и загружает шаблонные теги.
 
 | Атрибут | Описание |
 |---------|----------|
@@ -69,15 +69,15 @@ Url('/users/<int:id>', UserView(), name='user_detail')
 
 ---
 
-### `make_urls(*namespases)`
+### `make_urls(*namespaces)`
 
 Формирует таблицу URL для `CBVCore`. Вызывается в `urls.py` проекта,
-результат присваивается переменной `namespases`.
+результат присваивается переменной `namespaces`.
 
 ```python
 from flaskcbv.url import Url, make_urls
 
-namespases = make_urls(
+namespaces = make_urls(
     Url('/',      IndexView(), name='index'),
     Url('/about', AboutView(), name='about'),
 )
@@ -85,15 +85,15 @@ namespases = make_urls(
 
 ---
 
-### `include(namespases, namespace=None, description=None)`
+### `include(namespaces, namespace=None, description=None)`
 
 Подключает URL-список под-приложения в указанном пространстве имён.
 
 ```python
 from apps.blog import urls as blog_urls
 
-namespases = make_urls(
-    Url('/blog', include(blog_urls.namespases, namespace='blog')),
+namespaces = make_urls(
+    Url('/blog', include(blog_urls.namespaces, namespace='blog')),
 )
 ```
 

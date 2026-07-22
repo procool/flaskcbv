@@ -2,7 +2,7 @@ import os
 import sys
 
 ## Must happen before any flaskcbv import:
-## CBVCore.make_urls() does bare 'from urls import namespases'
+## CBVCore.make_urls() does bare 'from urls import namespaces'
 sys.path.insert(0, os.path.dirname(__file__))
 ## flaskcbv.conf.Settings() reads this at import time
 os.environ.setdefault('FLASK_SETTINGS_MODULE', 'settings')

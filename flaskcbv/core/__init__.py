@@ -42,19 +42,36 @@ class CBVCore(object):
         register_tags(self.app.jinja_env)
 
     def make_urls(self):
-        """Import ``urls.namespases`` and register each route with Flask.
+        """Import ``urls.namespaces`` and register each route with Flask.
+
+        Accepts both the new ``namespaces`` variable and the deprecated
+        ``namespases`` (emitting a ``DeprecationWarning``). Lookup order:
+        ``namespaces`` first, then ``namespases``.
 
         Raises:
-            Exception: If ``urls.py`` cannot be imported from the project path.
+            Exception: If ``urls.py`` cannot be imported, or defines neither
+                ``namespaces`` nor ``namespases``.
         """
         self.views = []
         try:
             urls_module = importlib.import_module('urls')
-            namespases = urls_module.namespases
         except Exception as err:
             raise Exception("%s: You should create urls.py in your project directory!" % err)
 
-        for url in namespases:
+        if hasattr(urls_module, 'namespaces'):
+            url_table = urls_module.namespaces
+        elif hasattr(urls_module, 'namespases'):
+            import warnings
+            warnings.warn(
+                "urls.py: 'namespases' is deprecated, rename the variable to 'namespaces'",
+                DeprecationWarning,
+                stacklevel=4,
+            )
+            url_table = urls_module.namespases
+        else:
+            raise Exception("urls.py must define a 'namespaces' variable (old name 'namespases' is deprecated)")
+
+        for url in url_table:
             logging.debug('FlaskCBV: Registering url: %s' % url)
             url[0].obj.current_url = url[2]
             url[0].obj.url = url[0] ## backref to view.url
