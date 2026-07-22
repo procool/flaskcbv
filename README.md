@@ -12,6 +12,10 @@
 | 2.x      | 3.8 – 3.12  | 2.0 – 3.x | ≥ 2.1     |
 | 1.x      | 3.6 – 3.8   | 1.x       | 2.0.0     |
 
+> **Python 3.8** is EOL upstream and kept only for legacy instances that cannot
+> be upgraded. It is covered by CI, but scheduled for removal in a future
+> release once those instances migrate; new code should target 3.9+.
+
 Upgrading from 1.x? See the [migration guide](docs/api.md#migrating-from-1x-to-2x).  
 Four files need updating: `apps/project.py` (required), `apps/flaskconfig.py` (required if using forms),
 `apps/start.py` (recommended), `Werkzeug` version pin (required).
