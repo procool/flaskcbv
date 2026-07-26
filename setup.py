@@ -53,7 +53,13 @@ setup(
     install_requires=[
         'setuptools',
         'Flask>=2.0',
-        'Werkzeug>=2.1',
+        # Floor bumped from >=2.1 (2026-07-26): that range let pip resolve an
+        # old vulnerable release (9 Dependabot findings — debugger RCE when
+        # DEBUG=True, multipart-form DoS, safe_join Windows device-name
+        # bypasses, nameless-cookie __Host- bypass). 3.1.6 is the first
+        # release confirmed to include the safe_join fixes (the last of the
+        # 9 to land); everything else was already fixed well before it.
+        'Werkzeug>=3.1.6',
         'itsdangerous>=2.0',
     ],
 
