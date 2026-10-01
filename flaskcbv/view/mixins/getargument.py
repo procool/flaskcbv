@@ -1,5 +1,8 @@
 import logging
 
+## Distinguishes "no default given" from an explicit default of None.
+_NO_DEFAULT = object()
+
 
 class getArgumentMixin(object):
     """Mixin that provides unified access to request parameters.
@@ -22,7 +25,8 @@ class getArgumentMixin(object):
         return self.session[key]
 
 
-    def get_argument_smart(self, key, as_get=True, as_post=True, as_session=False, as_cookie=False):
+    def get_argument_smart(self, key, as_get=True, as_post=True, as_session=False, as_cookie=False,
+                           default=_NO_DEFAULT):
         """Look up *key* across multiple request sources.
 
         Sources are checked in the order: GET → POST → cookie → session.
@@ -34,12 +38,15 @@ class getArgumentMixin(object):
             as_post (bool): Search form data. Default True.
             as_session (bool): Search Flask session. Default False.
             as_cookie (bool): Search cookies. Default False.
+            default: Returned when *key* is found nowhere. Without it a
+                missing key raises KeyError, as before.
 
         Returns:
-            str: The parameter value from the first matching source.
+            str: The parameter value from the first matching source, or
+            *default*.
 
         Raises:
-            KeyError: If *key* is not found in any enabled source.
+            KeyError: If *key* is not found and no *default* was given.
         """
         if as_get:
             try:
@@ -65,6 +72,8 @@ class getArgumentMixin(object):
             except KeyError:
                 pass
 
+        if default is not _NO_DEFAULT:
+            return default
         raise KeyError(key)
 
 

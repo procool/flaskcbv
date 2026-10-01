@@ -1,5 +1,5 @@
 import pytest
-from flaskcbv.response import Response, ResponseRedirect
+from flaskcbv.response import Response, ResponseNotModified, ResponseRedirect
 
 
 class TestResponseString:
@@ -92,8 +92,56 @@ class TestResponseRedirect:
         flask_r = r.render()
         assert flask_r.status_code == 301
 
+    def test_redirect_status_kwarg_is_honoured(self, req_ctx):
+        ## `status=` must not be silently ignored on a redirect.
+        assert ResponseRedirect('/moved', status=301).render().status_code == 301
+
     def test_redirect_header_forwarded(self, req_ctx):
         r = ResponseRedirect('/x')
         r.add_header('X-Redir', 'yes')
         flask_r = r.render()
         assert flask_r.headers['X-Redir'] == 'yes'
+
+
+class TestResponseStatus:
+    def test_custom_status(self, req_ctx):
+        r = Response('created', status=201)
+        assert r.render().status_code == 201
+
+    def test_status_with_generator(self, client):
+        def gen():
+            yield 'x'
+        flask_r = Response(gen(), status=206).render()
+        assert flask_r.status_code == 206
+        assert flask_r.get_data(as_text=True) == 'x'
+
+    def test_status_keeps_headers(self, req_ctx):
+        r = Response('', status=404)
+        r.add_header('X-Why', 'gone')
+        flask_r = r.render()
+        assert flask_r.status_code == 404
+        assert flask_r.headers['X-Why'] == 'gone'
+
+
+class TestResponseNotModified:
+    def test_status_304(self, req_ctx):
+        assert ResponseNotModified().render().status_code == 304
+
+    def test_etag_header(self, req_ctx):
+        flask_r = ResponseNotModified(etag='"7-3"').render()
+        assert flask_r.headers['ETag'] == '"7-3"'
+
+    def test_body_is_empty_on_the_wire(self, req_ctx):
+        ## Run the rendered response as WSGI: registering a route here would
+        ## depend on no request having been served yet by the shared app.
+        from werkzeug.test import EnvironBuilder, run_wsgi_app
+        flask_r = ResponseNotModified(etag='"x"').render()
+        app_iter, status, headers = run_wsgi_app(flask_r, EnvironBuilder().get_environ())
+        assert status.startswith('304')
+        assert b''.join(app_iter) == b''
+        assert headers.get('ETag') == '"x"'
+        assert 'Content-Length' not in headers
+
+    def test_status_is_a_class_default(self):
+        ## A subclass that overrides __init__ without super() must still render.
+        assert Response.status is None

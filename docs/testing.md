@@ -76,7 +76,7 @@ The `tests/` directory contains three supporting files that are not test files:
 
 ## Test files
 
-### `test_views.py` — Views (121 tests total, 26 here)
+### `test_views.py` — Views (142 tests total, 26 here)
 
 | Class | What is tested |
 |-------|---------------|
@@ -88,7 +88,7 @@ The `tests/` directory contains three supporting files that are not test files:
 | `TestViewGetAllUrls` | `get_all_urls()` returns list containing registered endpoint names |
 | `TestViewAbortException` | `is_abort_exception` / `test_abort_exception` detect and re-raise HTTP exceptions |
 
-### `test_response.py` — Response (13 tests)
+### `test_response.py` — Response (21 tests)
 
 | Class | What is tested |
 |-------|---------------|
@@ -96,7 +96,15 @@ The `tests/` directory contains three supporting files that are not test files:
 | `TestResponseCallable` | Callable invoked at render time (not at construction); lambda support |
 | `TestResponseGenerator` | Generator streamed correctly; both parts present in response body |
 | `TestResponseHeaders` | `add_header()` stored; appears in rendered response; `render(headers=)` merged |
-| `TestResponseRedirect` | 302 default, custom code (301), headers forwarded |
+| `TestResponseRedirect` | 302 default, custom code (301), `status=` honoured, headers forwarded |
+| `TestResponseStatus` | `status=` applied to string and generator bodies; headers kept |
+| `TestResponseNotModified` | 304 status, `ETag` header; run as WSGI: empty body, no `Content-Length`; `status` is a class default |
+
+### `test_getargument.py` — getArgumentMixin (9 tests)
+
+| Class | What is tested |
+|-------|---------------|
+| `TestGetArgumentSmart` | GET/POST/session lookup and GET-over-POST order; `KeyError` without `default` (backward compatibility); `default` returned when missing, `default=None` honoured, found value beats default, disabled source falls to default |
 
 ### `test_jsonmixin.py` — JSONMixin (13 tests)
 

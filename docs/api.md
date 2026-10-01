@@ -228,7 +228,16 @@ POST, cookie, and session sources.
 value = self.get_argument_smart('user_id', as_get=True, as_post=True)
 ```
 
-Raises `KeyError` if the key is absent from all enabled sources.
+Raises `KeyError` if the key is absent from all enabled sources — unless
+`default` is given, in which case that value is returned instead:
+
+```python
+page = self.get_argument_smart('page', default='1')
+tz = self.get_argument_smart('tz', default=None)   # None is a valid default
+```
+
+`default` comes after all existing parameters, so existing calls and existing
+`try/except KeyError` code behave exactly as before. Pass it by name.
 
 Sources are checked in order: GET → POST → cookie → session.
 
@@ -357,6 +366,31 @@ return Response(generate(100))   # correct: generator object
 | `add_header(name, value)` | Add a custom response header. |
 | `render(headers={})` | Build and return `flask.Response`. |
 
+**Status code** — `Response(data, status=201)`. Default `None` leaves the
+status Flask chooses (200). Works for all three body types:
+```python
+return Response(json.dumps(item), status=201)
+return Response('not here', status=404)
+```
+
+---
+
+### `class ResponseNotModified`
+
+`304 Not Modified` — the client's cached copy is current. The body is always
+empty (werkzeug drops it for 304). `etag` is optional and repeated in the
+`ETag` header; other headers go through `add_header()`.
+
+```python
+from flaskcbv.response import ResponseNotModified
+
+etag = '"%d-%d"' % (row.id, row.revision)
+if request.headers.get('If-None-Match') == etag:
+    r = ResponseNotModified(etag=etag)
+    r.add_header('Cache-Control', 'private, no-cache')
+    return r
+```
+
 ---
 
 ### `class ResponseRedirect`
@@ -366,6 +400,8 @@ from flaskcbv.response import ResponseRedirect
 
 return ResponseRedirect('/login/', code=302)
 ```
+
+`status=` is accepted as well and takes precedence over `code`.
 
 ---
 

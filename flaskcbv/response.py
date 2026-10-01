@@ -14,10 +14,15 @@ class Response(object):
 
     Args:
         data (str | callable | generator): Response body.
+        status (int): HTTP status code. None keeps what Flask chooses (200).
     """
 
-    def __init__(self, data="", **kwargs):
+    ## Class default: a subclass whose __init__ skips super() still renders.
+    status = None
+
+    def __init__(self, data="", status=None, **kwargs):
         self.data = data
+        self.status = status
         self.custom_headers = {}
 
     def _render(self):
@@ -64,6 +69,8 @@ class Response(object):
         if headers is None:
             headers = {}
         r = self._render()
+        if self.status is not None:
+            r.status_code = self.status
         headers.update(self.get_headers())
         for header in headers:
             r.headers[header] = headers[header]
@@ -77,7 +84,8 @@ class ResponseRedirect(Response):
 
     Args:
         url (str): Redirect target URL.
-        code (int): HTTP status code. Defaults to 302.
+        code (int): HTTP status code. Defaults to 302. ``status=`` is
+            accepted too and takes precedence.
     """
 
     def __init__(self, url, code=302, **kwargs):
@@ -86,10 +94,25 @@ class ResponseRedirect(Response):
         super(ResponseRedirect, self).__init__(**kwargs)
 
     def render(self, *args, **kwargs):
-        r = redirect(self.url, code=self.code)
+        ## `status`, when given, wins over `code`: both name the same thing.
+        r = redirect(self.url, code=self.status if self.status is not None else self.code)
         headers = self.get_headers()
         for header in headers:
             r.headers[header] = headers[header]
         return r
 
 
+class ResponseNotModified(Response):
+    """304 Not Modified: the client's cached copy is still current.
+
+    The body is always empty; werkzeug drops it for 304 anyway. Headers such
+    as ``ETag`` and ``Cache-Control`` are added with ``add_header()``.
+
+    Args:
+        etag (str): Optional ETag to repeat in the response.
+    """
+
+    def __init__(self, etag=None, **kwargs):
+        super(ResponseNotModified, self).__init__('', status=304, **kwargs)
+        if etag is not None:
+            self.add_header('ETag', etag)

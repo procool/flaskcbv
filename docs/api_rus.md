@@ -229,7 +229,16 @@ cookies и сессии.
 value = self.get_argument_smart('user_id', as_get=True, as_post=True)
 ```
 
-Бросает `KeyError`, если ключ не найден ни в одном из включённых источников.
+Бросает `KeyError`, если ключ не найден ни в одном из включённых источников —
+если только не передан `default`: тогда возвращается он:
+
+```python
+page = self.get_argument_smart('page', default='1')
+tz = self.get_argument_smart('tz', default=None)   # None — допустимое значение по умолчанию
+```
+
+`default` стоит после всех прежних параметров, поэтому существующие вызовы и
+код вида `try/except KeyError` работают ровно как раньше. Передавайте его по имени.
 
 Источники проверяются в порядке: GET → POST → cookie → session.
 
@@ -360,6 +369,33 @@ return Response(generate(100))   # правильно: объект генера
 
 ---
 
+**Код ответа** — `Response(data, status=201)`. По умолчанию `None`: код
+выбирает Flask (200). Работает со всеми тремя видами тела:
+```python
+return Response(json.dumps(item), status=201)
+return Response('not here', status=404)
+```
+
+---
+
+### `class ResponseNotModified`
+
+`304 Not Modified` — копия в кэше клиента актуальна. Тело всегда пустое
+(werkzeug отбрасывает его для 304). `etag` необязателен и повторяется в
+заголовке `ETag`; остальные заголовки — через `add_header()`.
+
+```python
+from flaskcbv.response import ResponseNotModified
+
+etag = '"%d-%d"' % (row.id, row.revision)
+if request.headers.get('If-None-Match') == etag:
+    r = ResponseNotModified(etag=etag)
+    r.add_header('Cache-Control', 'private, no-cache')
+    return r
+```
+
+---
+
 ### `class ResponseRedirect`
 
 ```python
@@ -367,6 +403,8 @@ from flaskcbv.response import ResponseRedirect
 
 return ResponseRedirect('/login/', code=302)
 ```
+
+Принимается и `status=` — он важнее `code`.
 
 ---
 

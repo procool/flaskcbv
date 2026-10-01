@@ -88,7 +88,7 @@ CI требует не менее **75%** (`--fail-under=75` в `.github/workflo
 | `TestViewGetAllUrls` | `get_all_urls()` возвращает список с зарегистрированными эндпоинтами |
 | `TestViewAbortException` | `is_abort_exception` / `test_abort_exception` определяют и пробрасывают HTTP-исключения |
 
-### `test_response.py` — Response (13 тестов)
+### `test_response.py` — Response (21 тест)
 
 | Класс | Что проверяется |
 |-------|----------------|
@@ -96,7 +96,15 @@ CI требует не менее **75%** (`--fail-under=75` в `.github/workflo
 | `TestResponseCallable` | Callable вызывается в момент рендера, а не при создании; поддержка лямбд |
 | `TestResponseGenerator` | Генератор стримится корректно; все части присутствуют в теле ответа |
 | `TestResponseHeaders` | `add_header()` сохраняется; появляется в ответе; `render(headers=)` мержится |
-| `TestResponseRedirect` | 302 по умолчанию, кастомный код (301), заголовки пробрасываются |
+| `TestResponseRedirect` | 302 по умолчанию, кастомный код (301), `status=` учитывается, заголовки пробрасываются |
+| `TestResponseStatus` | `status=` применяется к строковому телу и к генератору; заголовки сохраняются |
+| `TestResponseNotModified` | Код 304, заголовок `ETag`; через WSGI: пустое тело, без `Content-Length`; `status` — атрибут класса |
+
+### `test_getargument.py` — getArgumentMixin (9 тестов)
+
+| Класс | Что проверяется |
+|-------|----------------|
+| `TestGetArgumentSmart` | Поиск в GET/POST/сессии и приоритет GET над POST; `KeyError` без `default` (обратная совместимость); `default` при отсутствии ключа, `default=None` соблюдается, найденное значение важнее `default`, выключенный источник → `default` |
 
 ### `test_jsonmixin.py` — JSONMixin (13 тестов)
 
